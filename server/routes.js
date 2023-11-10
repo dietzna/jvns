@@ -15,7 +15,71 @@ connection.connect((err) => err && console.log(err));
 /******************
  * WARM UP ROUTES *
  ******************/
+// Route for books search bar
+const search_bar = async function(req, res) {
 
+  if (req.params.type === 'title') {
+    var book_title = req.params.title;
+    connection.query(`
+    SELECT title, publisher, publishedDate, categories
+    FROM Books
+    WHERE title LIKE '${book_title}'
+    LIMIT 10
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data)
+    }
+  });
+  } else if (req.params.type === 'author') {
+    var author = req.params.author;
+    connection.query(`
+    SELECT b.title, publisher, publishedDate, categories
+    FROM Books b JOIN Authors a ON b.title = a.title
+    WHERE a.author LIKE '${author}'
+    LIMIT 10
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data)
+    }
+  });
+  } else if (req.params.type === 'genre') {
+    var genre = req.params.genre;
+    connection.query(`
+    SELECT title, publisher, publishedDate, categories
+    FROM Books
+    WHERE categories LIKE '${genre}'
+    LIMIT 10
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data)
+    }
+  });
+  } else {
+    var publisher = req.params.publisher;
+    connection.query(`
+    SELECT title, publisher, publishedDate, categories
+    FROM Books
+    WHERE publisher LIKE '${publisher}'
+    LIMIT 10
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data)
+    }
+  });
+  }
+}
 // Route 1: GET /author/:type
 const author = async function(req, res) {
   // TODO (TASK 1): replace the values of name and pennKey with your own
