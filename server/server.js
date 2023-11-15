@@ -13,6 +13,8 @@ app.use(cors({
 //
 // ex: use a GET http request method when a /author/:type
 // endpoint is specified to execute routes.author handler
+app.get('/search_bar', routes.search_bar);
+app.get('/random_book', routes.random_book);
 app.get('/author/:type', routes.author);
 app.get('/random', routes.random);
 app.get('/song/:song_id', routes.song);
