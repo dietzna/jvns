@@ -15,6 +15,40 @@ connection.connect((err) => err && console.log(err));
 /******************
  * WARM UP ROUTES *
  ******************/
+// Route for users
+const users = async function(req, res) {
+  const username = req.query.username ?? "";
+	const reviewsLow = req.query.reviews_low ?? 0;
+	const reviewsHigh = req.query.reviews_high ?? 150;
+	const helpfulnessLow = req.query.helpfulness_low ?? 0;
+	const helpfulnessHigh = req.query.helpfulness_high ?? 1;
+  const orderBy = req.query.order_by ?? "count";
+
+	connection.query(
+		`WITH avg_ratings AS (
+      SELECT userId, AVG(helpfulness) AS helpfulness, COUNT(*) AS num_reviews
+      FROM Ratings
+      GROUP BY userId
+    )
+    SELECT profileName, helpfulness, num_reviews
+    FROM User u JOIN avg_ratings r ON u.userId = r.userId
+    WHERE profileName LIKE '%${username}%'
+    AND (helpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh})
+    AND (num_reviews BETWEEN ${reviewsLow} AND ${reviewsHigh})
+    ORDER BY ${orderBy} DESC
+    LIMIT 10;
+    `,
+		(err, data) => {
+			if (err || data.length === 0) {
+				console.log(err);
+				res.json([]);
+			} else {
+				res.json(data);
+			}
+		}
+	);
+}
+
 // Route for books search bar
 const search_bar = async function(req, res) {
 
@@ -80,6 +114,9 @@ const search_bar = async function(req, res) {
   });
   }
 }
+
+
+
 // Route 1: GET /author/:type
 const author = async function(req, res) {
   // TODO (TASK 1): replace the values of name and pennKey with your own
@@ -147,8 +184,8 @@ const song = async function(req, res) {
   // Most of the code is already written for you, you just need to fill in the query
   var specified_song = req.params.song_id;
   connection.query(`
-  SELECT * 
-  FROM Songs 
+  SELECT *
+  FROM Songs
   WHERE song_id LIKE '${specified_song}'`, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -326,7 +363,7 @@ const search_songs = async function(req, res) {
   WHERE title LIKE '%${title}%' AND explicit <= ${explicit} AND
       duration BETWEEN ${durationLow} AND ${durationHigh}
       AND ${playsLow} <= plays AND plays<= ${playsHigh}
-      AND ${danceabilityLow} <= danceability AND danceability <= ${danceabilityHigh} 
+      AND ${danceabilityLow} <= danceability AND danceability <= ${danceabilityHigh}
       AND ${energyLow} <= energy AND energy <= ${energyHigh}
       AND ${valenceLow} <= valence AND valence <= ${valenceHigh}
   ORDER BY title
