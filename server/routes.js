@@ -371,6 +371,114 @@ const search_songs = async function(req, res) {
   });
 }
 
+const author = async function(req, res) {
+  try {
+    const highAuthorsData = await queryDatabase(`
+      SELECT
+        a.author,
+        COUNT(*) AS num_titles
+      FROM books_db.Authors a
+      GROUP BY a.author
+      ORDER BY COUNT(*) DESC
+      LIMIT 10
+    `);
+
+    const bestAuthorsData = await queryDatabase(`
+      SELECT
+        a.author,
+        count(DISTINCT a.title) as num_books,
+        COUNT(DISTINCT r.id, r.userId) as num_ratings,
+        avg(r.score) as average_score
+      FROM books_db.Authors a
+      left join books_db.Books b on a.title = b.title
+      left join books_db.Ratings r on b.id = r.id
+      GROUP BY a.author
+      having COUNT(DISTINCT r.id, r.userId) > 500 and num_books > 5
+      ORDER BY avg(r.score) DESC
+      limit 10
+    `);
+
+    // const valueAuthorsData = await queryDatabase(`
+    //   SELECT
+    //     a.author,
+    //     count(DISTINCT a.title) as num_books,
+    //     COUNT(DISTINCT r.id, r.userId) as num_ratings,
+    //     avg(r.score) as average_score,
+    //     avg(b.price) as average_price,
+    //     avg(b.price)/avg(r.score) as price_per_score
+    //   FROM books_db.Authors a
+    //   left join books_db.Books b on a.title = b.title
+    //   left join books_db.Ratings r on b.id = r.id
+    //   GROUP BY a.author
+    //   having COUNT(DISTINCT r.id, r.userId) > 100 and avg(r.score) > 0
+    //   ORDER BY price_per_score
+    //   limit 10
+    // `);
+
+    if (highAuthorsData.length === 0 && bestAuthorsData.length === 0) {
+      return res.json({});
+    }
+    const result = {
+      highAuthors: highAuthorsData,
+      bestAuthors: bestAuthorsData,
+    };
+
+    res.json(result);
+  } catch (err) {
+    console.log(err);
+    res.json({});
+  }
+};
+
+const genre_authors = async function(req, res) {
+  connection.query(`
+  SELECT
+    a.author,
+    count(DISTINCT a.title) as num_books,
+    COUNT(DISTINCT r.id, r.userId) as num_ratings,
+    avg(r.score) as average_score
+  FROM books_db.Authors a
+  left join books_db.Books b on a.title = b.title
+  left join books_db.Ratings r on b.id = r.id
+  WHERE b.categories = '${req.params.genre}'
+  GROUP BY a.author
+  having COUNT(DISTINCT r.id, r.userId) > 100 and count(DISTINCT a.title) > 5
+  ORDER BY avg(r.score) DESC
+  limit 10
+  `, (err, data) => {
+    if (err || data.length === 0){
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data);
+    }
+  })
+}
+
+const author_top = async function(req, res) {
+  connection.query(`
+    SELECT
+      a.author,
+      a.title,
+      avg(r.score) as average_Rating
+    FROM books_db.Authors a
+    left join books_db.Books b on a.title = b.title
+    left join books_db.Ratings r on b.id = r.id
+    WHERE a.author = '${req.params.author}'
+    group by a.author, a.title
+    ORDER BY avg(r.score) DESC
+    limit 5
+  `, (err, data) => {
+    if (err || data.length === 0){
+      console.log(err);
+      res.json({});
+    } else {
+      res.json(data);
+    }
+  })
+}
+
+
 module.exports = {
   users,
   search_bar,
@@ -384,4 +492,7 @@ module.exports = {
   top_songs,
   top_albums,
   search_songs,
+	author,
+  genre_authors,
+  author_top
 }
