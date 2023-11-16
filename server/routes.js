@@ -22,7 +22,7 @@ const users = async function(req, res) {
 	const reviewsHigh = req.query.reviews_high ?? 150;
 	const helpfulnessLow = req.query.helpfulness_low ?? 0;
 	const helpfulnessHigh = req.query.helpfulness_high ?? 1;
-  const orderBy = req.query.order_by ?? "count";
+  const orderBy = req.query.order_by ?? "num_reviews";
 
 	connection.query(
 		`WITH avg_ratings AS (
@@ -378,6 +378,8 @@ const search_songs = async function(req, res) {
 }
 
 module.exports = {
+  users,
+  search_bar,
   author,
   random,
   song,
