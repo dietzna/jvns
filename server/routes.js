@@ -146,18 +146,6 @@ const random_book = async function(req, res) {
   });
 }
 
-const author = async function(req, res) {
-  const name = 'Natasha Dietz';
-  const pennKey = 'dietzna';
-  if (req.params.type === 'name') {
-    res.send(`Created by ${name}`);
-  } else if (req.params.type === 'pennkey') {
-    res.send(`Created by ${pennKey}`);
-  } else {
-    res.status(400).send(`'${req.params.type}' is not a valid author type. Valid types are 'name' and 'pennkey'.`);
-  }
-}
-
 // Route 2: GET /random
 const random = async function(req, res) {
   const explicit = req.query.explicit === 'true' ? 1 : 0;
@@ -490,6 +478,114 @@ const author_top = async function(req, res) {
   })
 }
 
+/ Route 1: GET /bookpopup
+const bookpopup = async function(req, res) {
+    var book_title = req.params.title;
+    connection.query(`
+    SELECT b.title, group_concat(a.author), b.publisher, b.categories, b.description, b.image, b.infoLink
+    FROM Books b, Authors a
+    WHERE b.title = a.title and b.title LIKE '${book_title}'
+    GROUP BY b.title, b.publisher, b.categories, b.description, b.image, b.infoLink
+    ORDER BY b.publisher, b.title, a.author`, (err, bookData) => {
+      if (err || bookData.length === 0) {
+        console.log(err);
+        res.json([]);
+        //return
+      } else {
+      connection.query(`
+        With inventory as(
+          SELECT b.title, c.author, b.infoLink, r.userId, r.score, r.summary, r.ratingText,
+          ROW_NUMBER() OVER (
+                    PARTITION BY b.title
+                    ORDER BY r.helpfulness DESC) row_num
+          FROM Books b, Ratings r, (SELECT a.id as id, group_concat(b.author) as author
+                                    FROM  Books a, Authors b
+                                    WHERE a.title = b. title group by a.id) c
+          WHERE b.id = r.id and b.id = c.id and b.title LIKE '${book_title}'
+          )
+          SELECT *
+          FROM
+            inventory
+          WHERE
+            row_num < 4`, (err, ratingData) => {
+      if (err || ratingData.length === 0) {
+        console.log(err);
+        res.json({ bookDetails: bookData, ratings: [] });
+      } else {
+        res.json({ bookDetails: bookData, ratings: ratingData });
+      }
+    });
+      }
+    });
+  }
+//route 2 get /publisher
+const publisher = async function(req, res) {
+  try {
+      const pubtopauthdata = await queryDatabase(`
+      WITH inventory
+      AS (SELECT
+             b.publisher,
+             a.author,
+             Count(*) cnt,
+             ROW_NUMBER() OVER (
+                PARTITION BY b.publisher
+                ORDER BY Count(*) DESC) row_num
+          FROM
+             Books b, Authors a
+          WHERE
+             b.title = a.title
+          GROUP BY
+              b.publisher, a.author
+         )
+      SELECT
+         publisher,
+         author
+      FROM
+         inventory
+      WHERE
+         row_num < 4
+      `);
+      const pubavgpricedata = await queryDatabase(`
+      SELECT publisher, Avg(Price)
+      FROM Books
+      GROUP BY publisher
+      `);
+      const pubtopcatdata = await queryDatabase(`
+      WITH inventory
+      AS (SELECT
+            publisher,
+            categories,
+            Count(*) cnt,
+            ROW_NUMBER() OVER (
+                PARTITION BY publisher
+                ORDER BY Count(*) DESC) row_num
+        FROM
+          Books
+        Where categories is not null
+          group by publisher,
+        categories
+        )
+      SELECT
+        publisher,
+        categories
+      FROM
+        inventory
+      WHERE
+        row_num < 4`);
+      if (pubtopcatdata.length === 0 && pubavgpricedata.length === 0 && pubtopauthdata.length === 0) {
+        return res.json({});
+      }
+      const result = {
+        pubTopAuthor: pubtopauthdata,
+        pubAvgPrice: pubavgpricedata,
+        pubTopCat: pubtopcatdata,
+      };
+      res.json(result);
+    } catch (err) {
+      console.log(err);
+      res.json({});
+    }
+  };
 
 module.exports = {
   users,
@@ -506,5 +602,7 @@ module.exports = {
   search_songs,
 	author,
   genre_authors,
-  author_top
+  author_top,
+    publisher,
+    bookpopup
 }
