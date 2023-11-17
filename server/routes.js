@@ -12,6 +12,18 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
+function queryDatabase(sql) {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
+
 /******************
  * WARM UP ROUTES *
  ******************/
