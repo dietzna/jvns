@@ -28,6 +28,8 @@ app.get('/search_songs', routes.search_songs);
 app.get('/author', routes.author);
 app.get('/author/:genre', routes.genre_authors);
 app.get('/author/:author', routes.author_top);
+app.get('/publisher', routes.publisher);
+app.get('/bookpopup/:title', routes.bookpopup);
 
 app.listen(config.server_port, () => {
   console.log(`Server running at http://${config.server_host}:${config.server_port}/`)
