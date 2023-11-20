@@ -1,17 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, React } from 'react';
 import { Container, Divider, Link } from '@mui/material';
-import { NavLink } from 'react-router-dom';
 
+import { NavLink } from 'react-router-dom';
 import LazyTable from '../components/LazyTable';
 import SongCard from '../components/SongCard';
+
 const config = require('../config.json');
 
 export default function HomePage() {
   // We use the setState hook to persist information across renders (such as the result of our API calls)
-  const [songOfTheDay, setSongOfTheDay] = useState({});
+  const [bookOfTheDay, setBookOfTheDay] = useState({});
+  const [selectedBookTitle, setBookTitle] = useState(null);
+  const [selectedBookAuthor, setBookAuthor] = useState(null);
+  const [selectedBookImage, setBookImage] = useState(null)
   // TODO (TASK 13): add a state variable to store the app author (default to '')
   const[appAuthor, setAppAuthor] = useState('');
+
+  const [songOfTheDay, setSongOfTheDay] = useState({});
   const [selectedSongId, setSelectedSongId] = useState(null);
+
 
   // The useEffect hook by default runs the provided callback after every render
   // The second (optional) argument, [], is the dependency array which signals
@@ -22,71 +29,155 @@ export default function HomePage() {
     // Fetch request to get the song of the day. Fetch runs asynchronously.
     // The .then() method is called when the fetch request is complete
     // and proceeds to convert the result to a JSON which is finally placed in state.
-    fetch(`http://${config.server_host}:${config.server_port}/random`)
-      .then(res => res.json())
-      .then(resJson => setSongOfTheDay(resJson));
+    // fetch(`http://${config.server_host}:${config.server_port}/random`)
+    //   .then(res => res.json())
+    //   .then(resJson => setSongOfTheDay(resJson));
 
     // TODO (TASK 14): add a fetch call to get the app author (name not pennkey) and store it in the state variable
     // Hint: note that the app author is a string, not a JSON object. To convert to text, call res.text() instead of res.json()
-    fetch(`http://${config.server_host}:${config.server_port}/author/name`)
-    .then(res =>res.text())
-    .then(resJson => setAppAuthor(resJson));
+    // fetch(`http://${config.server_host}:${config.server_port}/author/name`)
+    // .then(res =>res.text())
+    // .then(resJson => setAppAuthor(resJson));
+
+    fetch(`http://${config.server_host}:${config.server_port}/random_book`)
+      .then(res => res.json())
+      .then(resJson => {
+        setBookOfTheDay(resJson);
+        });
   }, []);
+
+    // updates title whenever book of the day changes
+    useEffect(() => {
+      setBookTitle(bookOfTheDay.title);
+      setBookAuthor(bookOfTheDay.author);
+      setBookImage(bookOfTheDay.image);
+    }, [bookOfTheDay]);
+
 
   // Here, we define the columns of the "Top Songs" table. The songColumns variable is an array (in order)
   // of objects with each object representing a column. Each object has a "field" property representing
   // what data field to display from the raw data, "headerName" property representing the column label,
   // and an optional renderCell property which given a row returns a custom JSX element to display in the cell.
-  const songColumns = [
-    {
-      field: 'title',
-      headerName: 'Song Title',
-      renderCell: (row) => <Link onClick={() => setSelectedSongId(row.song_id)}>{row.title}</Link> // A Link component is used just for formatting purposes
-    },
-    {
-      field: 'album',
-      headerName: 'Album Title',
-      renderCell: (row) => <NavLink to={`/albums/${row.album_id}`}>{row.album}</NavLink> // A NavLink component is used to create a link to the album page
-    },
-    {
-      field: 'plays',
-      headerName: 'Plays'
-    },
-  ];
+  // const songColumns = [
+  //   {
+  //     field: 'title',
+  //     headerName: 'Song Title',
+  //     renderCell: (row) => <Link onClick={() => setSelectedSongId(row.song_id)}>{row.title}</Link> // A Link component is used just for formatting purposes
+  //   },
+  //   {
+  //     field: 'album',
+  //     headerName: 'Album Title',
+  //     renderCell: (row) => <NavLink to={`/albums/${row.album_id}`}>{row.album}</NavLink> // A NavLink component is used to create a link to the album page
+  //   },
+  //   {
+  //     field: 'plays',
+  //     headerName: 'Plays'
+  //   },
+  // ];
 
   // TODO (TASK 15): define the columns for the top albums (schema is Album Title, Plays), where Album Title is a link to the album page
   // Hint: this should be very similar to songColumns defined above, but has 2 columns instead of 3
   // Hint: recall the schema for an album is different from that of a song (see the API docs for /top_albums). How does that impact the "field" parameter and the "renderCell" function for the album title column?
-  const albumColumns = [
-    {
-      field: 'title',
-      headerName: 'Album Title',
-      renderCell: (row) => <NavLink to={`/albums/${row.album_id}`}>{row.title}</NavLink> 
-    },
-    {
-      field: 'plays',
-      headerName: 'Plays'
-    }
-  ]
+  // const albumColumns = [
+  //   {
+  //     field: 'title',
+  //     headerName: 'Album Title',
+  //     renderCell: (row) => <NavLink to={`/albums/${row.album_id}`}>{row.title}</NavLink> 
+  //   },
+  //   {
+  //     field: 'plays',
+  //     headerName: 'Plays'
+  //   }
+  // ]
 
   return (
     <Container>
+      <h1>Book of the Day</h1>
+      {selectedBookTitle === null ? (
+        <p>Loading...</p>
+      ) : (
+        <p>Title: {selectedBookTitle}</p>
+      )}
+      <p>Author: {selectedBookAuthor}</p>
+      <Divider>
+        <p>Image: {selectedBookImage}</p>
+        <img src ={selectedBookImage}/>
+      </Divider>
+      <Divider>
+        <React.Fragment>
+      <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button">
+        <Button onClick={handleClick}>{options[selectedIndex]}</Button>
+        <Button
+          size="small"
+          aria-controls={open ? 'split-button-menu' : undefined}
+          aria-expanded={open ? 'true' : undefined}
+          aria-label="select merge strategy"
+          aria-haspopup="menu"
+          onClick={handleToggle}
+        >
+          <ArrowDropDownIcon />
+        </Button>
+      </ButtonGroup>
+      <Popper
+        sx={{
+          zIndex: 1,
+        }}
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        transition
+        disablePortal
+      >
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === 'bottom' ? 'center top' : 'center bottom',
+            }}
+          >
+            <Paper>
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList id="split-button-menu" autoFocusItem>
+                  {options.map((option, index) => (
+                    <MenuItem
+                      key={option}
+                      disabled={index === 2}
+                      selected={index === selectedIndex}
+                      onClick={(event) => handleMenuItemClick(event, index)}
+                    >
+                      {option}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+    </React.Fragment>
+      </Divider>
+      {/* {selectedBookTitle ? (
+        <p>Selected Book Title: {selectedBookTitle}</p>
+      ) : (
+        <p>No book selected</p>
+      )} */}
       {/* SongCard is a custom component that we made. selectedSongId && <SongCard .../> makes use of short-circuit logic to only render the SongCard if a non-null song is selected */}
-      {selectedSongId && <SongCard songId={selectedSongId} handleClose={() => setSelectedSongId(null)} />}
+      {/* {selectedSongId && <SongCard songId={selectedSongId} handleClose={() => setSelectedSongId(null)} />}
       <h2>Check out your song of the day:&nbsp;
         <Link onClick={() => setSelectedSongId(songOfTheDay.song_id)}>{songOfTheDay.title}</Link>
       </h2>
       <Divider />
       <h2>Top Songs</h2>
       <LazyTable route={`http://${config.server_host}:${config.server_port}/top_songs`} columns={songColumns} />
-      <Divider />
+      <Divider /> */}
        {/* TODO (TASK 16): add a h2 heading, LazyTable, and divider for top albums. Set the LazyTable's props for defaultPageSize to 5 and rowsPerPageOptions to [5, 10] */}
-     <h2>Top Albums</h2>
+     {/* <h2>Top Albums</h2>
      <LazyTable route={`http://${config.server_host}:${config.server_port}/top_albums`} columns={albumColumns}
       defaultPageSize={5} rowsPerPageOptions={[5, 10]} />
-    <Divider />
+    <Divider /> */}
       {/* TODO (TASK 17): add a paragraph (<p>text</p>) that displays the value of your author state variable from TASK 13 */}
-      <p>{appAuthor}</p>
+      {/* <p>{appAuthor}</p> */}
     </Container>
   );
 };
