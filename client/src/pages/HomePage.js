@@ -1,11 +1,16 @@
 import { useEffect, useState, React } from 'react';
-import { Container, Divider, Link } from '@mui/material';
+import { Container, Divider, IconButton, Link, Stack, Box, TextField } from '@mui/material';
 
 import { NavLink } from 'react-router-dom';
 import LazyTable from '../components/LazyTable';
 import SongCard from '../components/SongCard';
 
+import SplitButton  from '../components/SplitButton';
+import SearchIcon from '@mui/icons-material/Search';
+
 const config = require('../config.json');
+
+
 
 export default function HomePage() {
   // We use the setState hook to persist information across renders (such as the result of our API calls)
@@ -19,6 +24,19 @@ export default function HomePage() {
   const [songOfTheDay, setSongOfTheDay] = useState({});
   const [selectedSongId, setSelectedSongId] = useState(null);
 
+  const containerStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+  };
+
+  const imageStyle = {
+    width: '400',            // Set the width of the image
+    height: 'auto',            // Maintain the aspect ratio
+    boxShadow: '10px 10px 18px rgba(0, 0, 0, 0.1)',  // Add a shadow effect
+    marginBottom: '60px'
+  };
 
   // The useEffect hook by default runs the provided callback after every render
   // The second (optional) argument, [], is the dependency array which signals
@@ -92,71 +110,38 @@ export default function HomePage() {
 
   return (
     <Container>
-      <h1>Book of the Day</h1>
-      {selectedBookTitle === null ? (
-        <p>Loading...</p>
-      ) : (
-        <p>Title: {selectedBookTitle}</p>
-      )}
-      <p>Author: {selectedBookAuthor}</p>
-      <Divider>
-        <p>Image: {selectedBookImage}</p>
-        <img src ={selectedBookImage}/>
-      </Divider>
-      <Divider>
-        <React.Fragment>
-      <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button">
-        <Button onClick={handleClick}>{options[selectedIndex]}</Button>
-        <Button
-          size="small"
-          aria-controls={open ? 'split-button-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
-          aria-label="select merge strategy"
-          aria-haspopup="menu"
-          onClick={handleToggle}
-        >
-          <ArrowDropDownIcon />
-        </Button>
-      </ButtonGroup>
-      <Popper
-        sx={{
-          zIndex: 1,
-        }}
-        open={open}
-        anchorEl={anchorRef.current}
-        role={undefined}
-        transition
-        disablePortal
-      >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin:
-                placement === 'bottom' ? 'center top' : 'center bottom',
-            }}
+      <div style = {containerStyle}>
+        <h1>Book of the Day</h1>
+          {selectedBookTitle === null ? (
+            <p>Loading...</p>
+            ) : (
+            <p>Title: {selectedBookTitle}</p>
+            )}
+        <p>Author: {selectedBookAuthor}</p>
+        <img 
+          src = {selectedBookImage}
+          alt = "Book of the Day cover image"
+          style = {imageStyle}
+        
+        />
+
+
+      <Stack direction = "row" spacing = {2} alignItems = "stretch">
+        <SplitButton/>
+        <Box
+            component="form"
+            noValidate
+            autoComplete="off"
           >
-            <Paper>
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id="split-button-menu" autoFocusItem>
-                  {options.map((option, index) => (
-                    <MenuItem
-                      key={option}
-                      disabled={index === 2}
-                      selected={index === selectedIndex}
-                      onClick={(event) => handleMenuItemClick(event, index)}
-                    >
-                      {option}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
-      </Popper>
-    </React.Fragment>
-      </Divider>
+            <TextField id="outlined-basic" label="Searching for..." variant="outlined"/>
+          </Box>
+          <IconButton  aria-label = 'search'>
+            <SearchIcon/>
+          </IconButton>
+      </Stack>
+      <Divider></Divider>
+      </div>
+
       {/* {selectedBookTitle ? (
         <p>Selected Book Title: {selectedBookTitle}</p>
       ) : (
@@ -178,6 +163,24 @@ export default function HomePage() {
     <Divider /> */}
       {/* TODO (TASK 17): add a paragraph (<p>text</p>) that displays the value of your author state variable from TASK 13 */}
       {/* <p>{appAuthor}</p> */}
+      {/* <hr
+      style={{
+      marginTop : '50px',
+      background: "indigo",
+      height: "4px",
+      width: "100%",
+      border: "none",
+      }}
+      />
+ 
+      <hr
+        style={{
+        background: "#47B5FF",
+        height: "2px",
+        border: "none",
+      }}
+        /> */}
     </Container>
+    
   );
 };
