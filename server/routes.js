@@ -134,18 +134,6 @@ const random_book = async function(req, res) {
   });
 }
 
-const author = async function(req, res) {
-  const name = 'Natasha Dietz';
-  const pennKey = 'dietzna';
-  if (req.params.type === 'name') {
-    res.send(`Created by ${name}`);
-  } else if (req.params.type === 'pennkey') {
-    res.send(`Created by ${pennKey}`);
-  } else {
-    res.status(400).send(`'${req.params.type}' is not a valid author type. Valid types are 'name' and 'pennkey'.`);
-  }
-}
-
 // Route 2: GET /random
 const random = async function(req, res) {
   const explicit = req.query.explicit === 'true' ? 1 : 0;
