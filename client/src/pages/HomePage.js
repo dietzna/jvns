@@ -1,28 +1,25 @@
 import { useEffect, useState, React } from 'react';
 import { Container, Divider, IconButton, Link, Stack, Box, TextField } from '@mui/material';
 
-import { NavLink } from 'react-router-dom';
+// import { NavLink } from 'react-router-dom';
 import LazyTable from '../components/LazyTable';
-import SongCard from '../components/SongCard';
+// import SongCard from '../components/SongCard';
 
 import SplitButton  from '../components/SplitButton';
 import SearchIcon from '@mui/icons-material/Search';
 
 const config = require('../config.json');
 
-
-
 export default function HomePage() {
-  // We use the setState hook to persist information across renders (such as the result of our API calls)
   const [bookOfTheDay, setBookOfTheDay] = useState({});
   const [selectedBookTitle, setBookTitle] = useState(null);
   const [selectedBookAuthor, setBookAuthor] = useState(null);
   const [selectedBookImage, setBookImage] = useState(null)
-  // TODO (TASK 13): add a state variable to store the app author (default to '')
-  const[appAuthor, setAppAuthor] = useState('');
-
-  const [songOfTheDay, setSongOfTheDay] = useState({});
-  const [selectedSongId, setSelectedSongId] = useState(null);
+  const [data, setData] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const [selectedType, setSelectedType] = useState('title');
+  const [query, setQuery] = useState('');
+  const route = `http://${config.server_host}:${config.server_port}/search_bar?type=${selectedType}&keyword=${query}`;
 
   const containerStyle = {
       display: 'flex',
@@ -38,25 +35,7 @@ export default function HomePage() {
     marginBottom: '60px'
   };
 
-  // The useEffect hook by default runs the provided callback after every render
-  // The second (optional) argument, [], is the dependency array which signals
-  // to the hook to only run the provided callback if the value of the dependency array
-  // changes from the previous render. In this case, an empty array means the callback
-  // will only run on the very first render.
   useEffect(() => {
-    // Fetch request to get the song of the day. Fetch runs asynchronously.
-    // The .then() method is called when the fetch request is complete
-    // and proceeds to convert the result to a JSON which is finally placed in state.
-    // fetch(`http://${config.server_host}:${config.server_port}/random`)
-    //   .then(res => res.json())
-    //   .then(resJson => setSongOfTheDay(resJson));
-
-    // TODO (TASK 14): add a fetch call to get the app author (name not pennkey) and store it in the state variable
-    // Hint: note that the app author is a string, not a JSON object. To convert to text, call res.text() instead of res.json()
-    // fetch(`http://${config.server_host}:${config.server_port}/author/name`)
-    // .then(res =>res.text())
-    // .then(resJson => setAppAuthor(resJson));
-
     fetch(`http://${config.server_host}:${config.server_port}/random_book`)
       .then(res => res.json())
       .then(resJson => {
@@ -64,49 +43,56 @@ export default function HomePage() {
         });
   }, []);
 
-    // updates title whenever book of the day changes
+    const fetchData = async () => {
+      try {
+        const response = await fetch(route);
+        const result = await response.json();
+        // Log the data received from the network request
+        // console.log('Data received:', result);
+
+        setData(result);
+        setShowResults(true);
+        // setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // setLoading(false);
+      }
+    };
+
     useEffect(() => {
       setBookTitle(bookOfTheDay.title);
       setBookAuthor(bookOfTheDay.author);
       setBookImage(bookOfTheDay.image);
     }, [bookOfTheDay]);
 
-
-  // Here, we define the columns of the "Top Songs" table. The songColumns variable is an array (in order)
-  // of objects with each object representing a column. Each object has a "field" property representing
-  // what data field to display from the raw data, "headerName" property representing the column label,
-  // and an optional renderCell property which given a row returns a custom JSX element to display in the cell.
-  // const songColumns = [
-  //   {
-  //     field: 'title',
-  //     headerName: 'Song Title',
-  //     renderCell: (row) => <Link onClick={() => setSelectedSongId(row.song_id)}>{row.title}</Link> // A Link component is used just for formatting purposes
-  //   },
-  //   {
-  //     field: 'album',
-  //     headerName: 'Album Title',
-  //     renderCell: (row) => <NavLink to={`/albums/${row.album_id}`}>{row.album}</NavLink> // A NavLink component is used to create a link to the album page
-  //   },
-  //   {
-  //     field: 'plays',
-  //     headerName: 'Plays'
-  //   },
-  // ];
-
-  // TODO (TASK 15): define the columns for the top albums (schema is Album Title, Plays), where Album Title is a link to the album page
-  // Hint: this should be very similar to songColumns defined above, but has 2 columns instead of 3
-  // Hint: recall the schema for an album is different from that of a song (see the API docs for /top_albums). How does that impact the "field" parameter and the "renderCell" function for the album title column?
-  // const albumColumns = [
-  //   {
-  //     field: 'title',
-  //     headerName: 'Album Title',
-  //     renderCell: (row) => <NavLink to={`/albums/${row.album_id}`}>{row.title}</NavLink> 
-  //   },
-  //   {
-  //     field: 'plays',
-  //     headerName: 'Plays'
-  //   }
-  // ]
+    useEffect(() => {
+      const updatedRoute = `http://${config.server_host}:${config.server_port}/search_bar?type=${selectedType}&keyword=${query}`;
+      fetchData(updatedRoute);
+   }, [query]);
+   
+    const bookColumns = [
+      {
+        field: 'title',
+        headerName: 'Book Title',
+        // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink> 
+      },
+      {
+        field: 'author',
+        headerName: 'Author'
+      },
+      {
+        field: 'publisher',
+        headerName: 'Publisher'
+      },
+      {
+        field: 'categories',
+        headerName: 'Genre'
+      },
+      {
+        field: 'publishedDate',
+        headerName: 'Date'
+      }
+    ]
 
   return (
     <Container>
@@ -118,35 +104,70 @@ export default function HomePage() {
             <p>Title: {selectedBookTitle}</p>
             )}
         <p>Author: {selectedBookAuthor}</p>
-        <img 
-          src = {selectedBookImage}
+        <img src = {selectedBookImage}
           alt = "Book of the Day cover image"
           style = {imageStyle}
-        
         />
 
-
       <Stack direction = "row" spacing = {2} alignItems = "stretch">
-        <SplitButton/>
+        <SplitButton
+        selectedType={selectedType}
+          onChange={(newType) => setSelectedType(newType)}
+        />
         <Box
             component="form"
-            noValidate
-            autoComplete="off"
+            noValidate autoComplete="off"
           >
-            <TextField id="outlined-basic" label="Searching for..." variant="outlined"/>
+           <TextField
+          id="outlined-basic"
+          label="Searching for..."
+          variant="outlined"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
           </Box>
-          <IconButton  aria-label = 'search'>
+          <IconButton aria-label = 'search' onClick = {fetchData}>
             <SearchIcon/>
           </IconButton>
       </Stack>
-      <Divider></Divider>
+      <Divider>  
+      {showResults && (
+          <div style={{ marginTop: '50px' }}>
+            <h2>Search Results:</h2>
+            <ul>
+              {data.map((item, index) => (
+                <li key={index}>
+                  <strong>Title:</strong> {item.title}, <strong>Author:</strong> {item.author},{' '}
+                  <strong>Publisher:</strong> {item.publisher}, <strong>Genre:</strong> {item.categories}
+                </li>
+              ))}
+            </ul>
+          </div>
+      )}
+      </Divider>
       </div>
 
-      {/* {selectedBookTitle ? (
-        <p>Selected Book Title: {selectedBookTitle}</p>
-      ) : (
-        <p>No book selected</p>
-      )} */}
+
+      {/* <h3>Search Return</h3> */}
+      {/* <LazyTable route={`http://${config.server_host}:${config.server_port}/search_bar?type=title&keyword=Who`} columns={bookColumns} 
+      defaultPageSize={5} rowsPerPageOptions={[5, 10]} /> */}
+      <div>
+      {/* <h2>Search Results:</h2>
+      <ul>
+        {data.map((item, index) => (
+          <li key={index}>
+            <strong>Title:</strong> {item.title}, <strong>Author:</strong> {item.author},{' '}
+            <strong>Publisher:</strong> {item.publisher}, <strong>Genre:</strong> {item.categories}
+          </li>
+        ))}
+      </ul> */}
+    </div>
+      {/* <div>
+      {data.map(item => (
+        // Render your data here
+        <div key={item.title}>{item.author}</div>
+      ))}
+    </div> */}
       {/* SongCard is a custom component that we made. selectedSongId && <SongCard .../> makes use of short-circuit logic to only render the SongCard if a non-null song is selected */}
       {/* {selectedSongId && <SongCard songId={selectedSongId} handleClose={() => setSelectedSongId(null)} />}
       <h2>Check out your song of the day:&nbsp;
