@@ -1,10 +1,10 @@
 import { useEffect, useState, React } from 'react';
-import { Container, Divider, IconButton, Link, Stack, Box, TextField } from '@mui/material';
+import { Container, Divider, IconButton, Link, Stack, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 // import { NavLink } from 'react-router-dom';
 import LazyTable from '../components/LazyTable';
 // import SongCard from '../components/SongCard';
-
+import CustomTable from '../components/CustomTable';
 import SplitButton  from '../components/SplitButton';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -47,15 +47,10 @@ export default function HomePage() {
       try {
         const response = await fetch(route);
         const result = await response.json();
-        // Log the data received from the network request
-        // console.log('Data received:', result);
-
         setData(result);
         setShowResults(true);
-        // setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
-        // setLoading(false);
       }
     };
 
@@ -87,31 +82,22 @@ export default function HomePage() {
       {
         field: 'categories',
         headerName: 'Genre'
-      },
-      {
-        field: 'publishedDate',
-        headerName: 'Date'
       }
     ]
 
   return (
     <Container>
       <div style = {containerStyle}>
-        <h1>Book of the Day</h1>
-          {selectedBookTitle === null ? (
-            <p>Loading...</p>
-            ) : (
-            <p>Title: {selectedBookTitle}</p>
-            )}
-        <p>Author: {selectedBookAuthor}</p>
+        <h2>Book of the Day</h2>
+            <h4>{selectedBookTitle}</h4><p>By: {selectedBookAuthor}</p>
         <img src = {selectedBookImage}
           alt = "Book of the Day cover image"
           style = {imageStyle}
         />
-
+      </div>
       <Stack direction = "row" spacing = {2} alignItems = "stretch">
         <SplitButton
-        selectedType={selectedType}
+          selectedType={selectedType}
           onChange={(newType) => setSelectedType(newType)}
         />
         <Box
@@ -130,78 +116,14 @@ export default function HomePage() {
             <SearchIcon/>
           </IconButton>
       </Stack>
-      <Divider>  
-      {showResults && (
-          <div style={{ marginTop: '50px' }}>
-            <h2>Search Results:</h2>
-            <ul>
-              {data.map((item, index) => (
-                <li key={index}>
-                  <strong>Title:</strong> {item.title}, <strong>Author:</strong> {item.author},{' '}
-                  <strong>Publisher:</strong> {item.publisher}, <strong>Genre:</strong> {item.categories}
-                </li>
-              ))}
-            </ul>
-          </div>
-      )}
-      </Divider>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <h2 style={{ alignSelf: 'flex-start' }}>Search Results</h2>
+        {data.length === 0 ? (
+          <p>No results found.</p>
+        ) : (
+          <CustomTable data={data} bookColumns={bookColumns} />
+        )}
       </div>
-
-
-      {/* <h3>Search Return</h3> */}
-      {/* <LazyTable route={`http://${config.server_host}:${config.server_port}/search_bar?type=title&keyword=Who`} columns={bookColumns} 
-      defaultPageSize={5} rowsPerPageOptions={[5, 10]} /> */}
-      <div>
-      {/* <h2>Search Results:</h2>
-      <ul>
-        {data.map((item, index) => (
-          <li key={index}>
-            <strong>Title:</strong> {item.title}, <strong>Author:</strong> {item.author},{' '}
-            <strong>Publisher:</strong> {item.publisher}, <strong>Genre:</strong> {item.categories}
-          </li>
-        ))}
-      </ul> */}
-    </div>
-      {/* <div>
-      {data.map(item => (
-        // Render your data here
-        <div key={item.title}>{item.author}</div>
-      ))}
-    </div> */}
-      {/* SongCard is a custom component that we made. selectedSongId && <SongCard .../> makes use of short-circuit logic to only render the SongCard if a non-null song is selected */}
-      {/* {selectedSongId && <SongCard songId={selectedSongId} handleClose={() => setSelectedSongId(null)} />}
-      <h2>Check out your song of the day:&nbsp;
-        <Link onClick={() => setSelectedSongId(songOfTheDay.song_id)}>{songOfTheDay.title}</Link>
-      </h2>
-      <Divider />
-      <h2>Top Songs</h2>
-      <LazyTable route={`http://${config.server_host}:${config.server_port}/top_songs`} columns={songColumns} />
-      <Divider /> */}
-       {/* TODO (TASK 16): add a h2 heading, LazyTable, and divider for top albums. Set the LazyTable's props for defaultPageSize to 5 and rowsPerPageOptions to [5, 10] */}
-     {/* <h2>Top Albums</h2>
-     <LazyTable route={`http://${config.server_host}:${config.server_port}/top_albums`} columns={albumColumns}
-      defaultPageSize={5} rowsPerPageOptions={[5, 10]} />
-    <Divider /> */}
-      {/* TODO (TASK 17): add a paragraph (<p>text</p>) that displays the value of your author state variable from TASK 13 */}
-      {/* <p>{appAuthor}</p> */}
-      {/* <hr
-      style={{
-      marginTop : '50px',
-      background: "indigo",
-      height: "4px",
-      width: "100%",
-      border: "none",
-      }}
-      />
- 
-      <hr
-        style={{
-        background: "#47B5FF",
-        height: "2px",
-        border: "none",
-      }}
-        /> */}
     </Container>
-    
   );
-};
+}

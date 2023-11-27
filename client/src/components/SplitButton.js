@@ -1,3 +1,5 @@
+// SplitButton.js
+
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -9,9 +11,9 @@ import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 
-const options = ['Title', 'Author', 'Genre', 'Publisher'];
+const options = ['title', 'author', 'genre', 'publisher'];
 
-export default function SplitButton() {
+export default function SplitButton({ onChange }) { // Fix the parameter name here
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
@@ -23,6 +25,7 @@ export default function SplitButton() {
   const handleMenuItemClick = (event, index) => {
     setSelectedIndex(index);
     setOpen(false);
+    onChange(options[index]); // Call the onChange function with the selected option
   };
 
   const handleToggle = () => {
@@ -54,7 +57,7 @@ export default function SplitButton() {
       </ButtonGroup>
       <Popper
         sx={{
-          zIndex: 1,
+          zIndex: 10,
         }}
         open={open}
         anchorEl={anchorRef.current}
