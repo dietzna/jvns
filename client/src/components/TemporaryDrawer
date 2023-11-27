@@ -1,0 +1,56 @@
+import React from 'react';
+import { useEffect, useState } from 'react';
+import Box from '@mui/material';
+import Drawer from '@mui/material/Drawer';
+import Button from '@mui/material/Button';
+
+export default function TemporaryDrawer({ selectedBookTitle, selectedBookAuthor, selectedBookImage }) {
+  const [state, setState] = React.useState({
+    left: false,
+  });
+
+  const toggleDrawer = (anchor, open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setState({ ...state, [anchor]: open });
+  };
+
+  const drawerContent = (
+    <Box
+      sx={{
+        width: 250,
+        padding: 2,
+        backgroundColor: '#f0f0f0',
+      }}
+      role="presentation"
+      onClick={toggleDrawer('left', false)}
+      onKeyDown={toggleDrawer('left', false)}
+    >
+      <div>
+        <h2>Book of the Day</h2>
+        <h4>{selectedBookTitle}</h4>
+        <p>By: {selectedBookAuthor}</p>
+        <img
+          src={selectedBookImage}
+          alt="Book of the Day cover image"
+          style={{ width: '100%', height: 'auto', marginBottom: '16px' }}
+        />
+      </div>
+    </Box>
+  );
+
+  return (
+    <div>
+      <Button onClick={toggleDrawer('left', true)}>Open Drawer</Button>
+      <Drawer
+        anchor="left"
+        open={state['left']}
+        onClose={toggleDrawer('left', false)}
+      >
+        {drawerContent}
+      </Drawer>
+    </div>
+  );
+}
