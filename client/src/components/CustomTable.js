@@ -7,11 +7,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import {useTheme} from '@mui/system';
 
-// Assuming bookColumns and data are available in the scope of your component
-export default function CustomTable({ data, bookColumns }) {
+export default function CustomTable({ data, keyColumns }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const theme = useTheme();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -37,12 +38,15 @@ export default function CustomTable({ data, bookColumns }) {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {bookColumns.map((column) => (
+              {keyColumns.map((column) => (
                 <TableCell
                   key={column.field}
                   align={column.align || 'left'}
-                  style={{ minWidth: column.minWidth }}
-                  sx={{backgroundColor: '#EBD9A4'}}
+                  style={{
+                    minWidth: column.minWidth,
+                    color: 'white', // Use primary text color from the theme
+                  }}
+                  sx={{ backgroundColor: theme.palette.primary.main }}
                 >
                   {column.headerName}
                 </TableCell>
@@ -54,7 +58,7 @@ export default function CustomTable({ data, bookColumns }) {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, rowIndex) => (
                 <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
-                  {bookColumns.map((column) => (
+                  {keyColumns.map((column) => (
                     <TableCell key={column.field} align={column.align || 'left'}>
                       {row[column.field]}
                     </TableCell>

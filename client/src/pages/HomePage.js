@@ -1,14 +1,14 @@
-import { useEffect, useState, React } from 'react';
-import { Container, Divider, IconButton, Link, Stack, Box, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
-
-// import { NavLink } from 'react-router-dom';
-import LazyTable from '../components/LazyTable';
-// import SongCard from '../components/SongCard';
+import React, { useEffect, useState} from 'react';
+import { Container, Divider, IconButton, Link, Stack, Box, TextField} from '@mui/material';
+import { useTheme } from '@mui/system';
+import { NavLink } from 'react-router-dom';
 import CustomTable from '../components/CustomTable';
 import SplitButton  from '../components/SplitButton';
 import SearchIcon from '@mui/icons-material/Search';
+import TemporaryDrawer from '../components/TemporaryDrawer';
 
 const config = require('../config.json');
+
 
 export default function HomePage() {
   const [bookOfTheDay, setBookOfTheDay] = useState({});
@@ -20,28 +20,49 @@ export default function HomePage() {
   const [selectedType, setSelectedType] = useState('title');
   const [query, setQuery] = useState('');
   const route = `http://${config.server_host}:${config.server_port}/search_bar?type=${selectedType}&keyword=${query}`;
+  const theme = useTheme();
+
+const welcomeMessageStyle = {
+  display: 'flex',
+  fontSize: '1em',
+  color: 'black',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '6px', // Add padding for better visibility
+  borderRadius: '30px', // Add rounded corners
+  border: `4px solid ${theme.palette.secondary.main}`,
+};
 
   const containerStyle = {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
+      paddingTop: '20px',
+      paddingBottom: '20px',
+  };
+
+  const columnStyle = {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '20px',
+    borderRadius: '10px',
+    margin: '10px', // Add margin for spacing between columns
+    gap: '20px',
   };
 
   const imageStyle = {
     width: '400',            // Set the width of the image
     height: 'auto',            // Maintain the aspect ratio
-    boxShadow: '10px 10px 18px rgba(0, 0, 0, 0.1)',  // Add a shadow effect
-    marginBottom: '60px'
+    boxShadow: '15px 15px 20px rgba(0, 0, 0, 0.3)',  // Add a shadow effect
+    // marginBottom: '60px'
   };
 
-  useEffect(() => {
-    fetch(`http://${config.server_host}:${config.server_port}/random_book`)
-      .then(res => res.json())
-      .then(resJson => {
-        setBookOfTheDay(resJson);
-        });
-  }, []);
+  const handleSearchIconClick = () => {
+    fetchData();
+  };
 
     const fetchData = async () => {
       try {
@@ -55,15 +76,18 @@ export default function HomePage() {
     };
 
     useEffect(() => {
+      fetch(`http://${config.server_host}:${config.server_port}/random_book`)
+        .then(res => res.json())
+        .then(resJson => {
+          setBookOfTheDay(resJson);
+          });
+    }, []);
+
+    useEffect(() => {
       setBookTitle(bookOfTheDay.title);
       setBookAuthor(bookOfTheDay.author);
       setBookImage(bookOfTheDay.image);
     }, [bookOfTheDay]);
-
-    useEffect(() => {
-      const updatedRoute = `http://${config.server_host}:${config.server_port}/search_bar?type=${selectedType}&keyword=${query}`;
-      fetchData(updatedRoute);
-   }, [query]);
    
     const bookColumns = [
       {
@@ -87,23 +111,29 @@ export default function HomePage() {
 
   return (
     <Container>
-      <div style = {containerStyle}>
+      <div style = {containerStyle}></div>
+      <div style={welcomeMessageStyle}>
+        <h2>Welcome to PageTurner</h2>
+      </div>
+      <div style = {containerStyle}></div>
+         <div style={welcomeMessageStyle}>
+          <div style={columnStyle}>
         <h2>Book of the Day</h2>
-            <h4>{selectedBookTitle}</h4><p>By: {selectedBookAuthor}</p>
+            <h4>{selectedBookTitle}</h4><h5>{selectedBookAuthor}</h5>
         <img src = {selectedBookImage}
           alt = "Book of the Day cover image"
           style = {imageStyle}
         />
+        </div>
       </div>
+      <div style = {containerStyle}></div>
       <Stack direction = "row" spacing = {2} alignItems = "stretch">
         <SplitButton
           selectedType={selectedType}
           onChange={(newType) => setSelectedType(newType)}
         />
         <Box
-            component="form"
-            noValidate autoComplete="off"
-          >
+            component="form" noValidate autoComplete="off">
            <TextField
           id="outlined-basic"
           label="Searching for..."
@@ -112,18 +142,26 @@ export default function HomePage() {
           onChange={(e) => setQuery(e.target.value)}
         />
           </Box>
-          <IconButton aria-label = 'search' onClick = {fetchData}>
+          <IconButton aria-label = 'search' onClick = {handleSearchIconClick}>
             <SearchIcon/>
           </IconButton>
       </Stack>
+      <div style = {containerStyle}></div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <h2 style={{ alignSelf: 'flex-start' }}>Search Results</h2>
-        {data.length === 0 ? (
+        {/* <h2 style={{ alignSelf: 'flex-start' }}>Search Results</h2> */}
+        {showResults && (data.length === 0 ? (
           <p>No results found.</p>
         ) : (
-          <CustomTable data={data} bookColumns={bookColumns} />
+          <CustomTable data={data} keyColumns={bookColumns} />
+        )
         )}
       </div>
+     {/* <TemporaryDrawer
+        selectedBookTitle={selectedBookTitle}
+        selectedBookAuthor={selectedBookAuthor}
+        selectedBookImage={selectedBookImage}
+      /> */}
+      <div style = {containerStyle}></div>
     </Container>
   );
 }
