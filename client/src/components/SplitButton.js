@@ -1,5 +1,3 @@
-// SplitButton.js
-
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -13,10 +11,10 @@ import MenuList from '@mui/material/MenuList';
 
 const options = ['title', 'author', 'genre', 'publisher'];
 
-export default function SplitButton({ onChange }) { // Fix the parameter name here
+export default function SplitButton({ onChange }) {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   const handleClick = () => {
     console.info(`You clicked ${options[selectedIndex]}`);
@@ -25,7 +23,7 @@ export default function SplitButton({ onChange }) { // Fix the parameter name he
   const handleMenuItemClick = (event, index) => {
     setSelectedIndex(index);
     setOpen(false);
-    onChange(options[index]); // Call the onChange function with the selected option
+    onChange(options[index]);
   };
 
   const handleToggle = () => {
