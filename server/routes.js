@@ -69,7 +69,7 @@ const search_bar = async function(req, res) {
     SELECT b.title, publisher, publishedDate, author, categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.title LIKE '%${book_title}%'
-    LIMIT 10
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
