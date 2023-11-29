@@ -10,8 +10,8 @@ function NavText({ href, text, isMain }) {
       noWrap
       style={{
         marginRight: '30px',
-        fontFamily: 'monospace',
-        fontWeight: 700,
+        fontFamily: 'sans-serif',
+        fontWeight: 600,
         letterSpacing: '.3rem',
       }}
     >
@@ -36,9 +36,10 @@ export default function NavBar() {
     <AppBar position='static'>
       <Container maxWidth='xl'>
         <Toolbar disableGutters>
-          <NavText href='/' text='SWIFTIFY' isMain />
-          <NavText href='/albums' text='ALBUMS' />
-          <NavText href='/songs' text='SONGS' />
+          <NavText href='/' text='PAGETURNER' isMain />
+          <NavText href='/authors' text='AUTHORS' />
+          <NavText href='/books' text='BOOKS' />
+          <NavText href='/users' text='USERS' />
         </Toolbar>
       </Container>
     </AppBar>

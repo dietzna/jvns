@@ -69,7 +69,7 @@ const search_bar = async function(req, res) {
     SELECT b.title, publisher, publishedDate, author, categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.title LIKE '%${book_title}%'
-    LIMIT 10
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -132,8 +132,9 @@ const search_bar = async function(req, res) {
 // Route for getting book of the day
 const random_book = async function(req, res) {
   connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
+    SELECT b.title, publisher, publishedDate, author, categories, image
     FROM Books b JOIN Authors a ON b.title = a.title
+    WHERE b.title IS NOT NULL AND author IS NOT NULL and image IS NOT NULL
     ORDER BY RAND()
     LIMIT 1
   `, (err, data) => {
@@ -141,7 +142,7 @@ const random_book = async function(req, res) {
       console.log(err);
       res.json({});
     } else {
-        res.json(data)
+        res.json(data[0])
     }
   });
 }

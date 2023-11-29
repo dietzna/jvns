@@ -14,9 +14,13 @@ import UsersPage from './pages/UsersPage'
 // in this case, we only change the color scheme
 export const theme = createTheme({
   palette: {
-    primary: indigo,
-    secondary: amber,
+    primary: {
+      main: '#008F7A',
+    },
+    secondary: {
+      main: '#D5CABD',
   },
+},
 });
 
 // App is the root component of our application and as children contain all our pages
