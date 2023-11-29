@@ -26,8 +26,8 @@ app.get('/top_songs', routes.top_songs);
 app.get('/top_albums', routes.top_albums);
 app.get('/search_songs', routes.search_songs);
 app.get('/author', routes.author);
-app.get('/author/:genre', routes.genre_authors);
-app.get('/author/:author', routes.author_top);
+app.get('/author/genre/:genre', routes.genre_authors);
+app.get('/author/name/:author', routes.author_top);
 app.get('/publisher', routes.publisher);
 app.get('/bookpopup/:title', routes.bookpopup);
 
