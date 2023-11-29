@@ -31,7 +31,7 @@ function queryDatabase(sql) {
 const users = async function(req, res) {
   const username = req.query.username ?? "";
 	const reviewsLow = req.query.reviews_low ?? 0;
-	const reviewsHigh = req.query.reviews_high ?? 150;
+	const reviewsHigh = req.query.reviews_high ?? 500;
 	const helpfulnessLow = req.query.helpfulness_low ?? 0;
 	const helpfulnessHigh = req.query.helpfulness_high ?? 1;
   const orderBy = req.query.order_by ?? "num_reviews";
@@ -42,7 +42,7 @@ const users = async function(req, res) {
       FROM Ratings
       GROUP BY userId
     )
-    SELECT profileName, helpfulness, num_reviews
+    SELECT u.userId, profileName, helpfulness, num_reviews
     FROM User u JOIN avg_ratings r ON u.userId = r.userId
     WHERE profileName LIKE '%${username}%'
     AND (helpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh})
@@ -478,7 +478,7 @@ const author_top = async function(req, res) {
   })
 }
 
-/ Route 1: GET /bookpopup
+// Route 1: GET /bookpopup
 const bookpopup = async function(req, res) {
     var book_title = req.params.title;
     connection.query(`
