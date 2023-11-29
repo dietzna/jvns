@@ -1,10 +1,11 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
-import Box from '@mui/material';
+import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
+import { useTheme } from '@mui/material/styles';
 
 export default function TemporaryDrawer({ selectedBookTitle, selectedBookAuthor, selectedBookImage }) {
+  const theme = useTheme();
   const [state, setState] = React.useState({
     left: false,
   });
@@ -41,9 +42,19 @@ export default function TemporaryDrawer({ selectedBookTitle, selectedBookAuthor,
     </Box>
   );
 
+  const buttonStyle = {
+    border: `2px solid ${theme.palette.primary.main}`,
+    backgroundColor: '#FFFFFF', // Set your desired lighter color
+    '&:hover': {
+      backgroundColor: '#d3d3d3', // Set your desired darker color on hover
+    },
+  };
+
   return (
     <div>
-      <Button onClick={toggleDrawer('left', true)}>Open Drawer</Button>
+      <Button onClick={toggleDrawer('left', true)} sx={buttonStyle}>
+        Click for Book of the Day
+      </Button>
       <Drawer
         anchor="left"
         open={state['left']}
