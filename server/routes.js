@@ -375,46 +375,19 @@ const search_songs = async function(req, res) {
 const author = async function(req, res) {
   try {
     const highAuthorsData = await queryDatabase(`
-      SELECT
-        a.author,
-        COUNT(*) AS num_titles
-      FROM books_db.Authors a
-      GROUP BY a.author
-      ORDER BY COUNT(*) DESC
-      LIMIT 10
+    SELECT *
+    FROM authors_high_materialized
     `);
 
     const bestAuthorsData = await queryDatabase(`
-      SELECT
-        a.author,
-        count(DISTINCT a.title) as num_books,
-        COUNT(DISTINCT r.id, r.userId) as num_ratings,
-        avg(r.score) as average_score
-      FROM books_db.Authors a
-      left join books_db.Books b on a.title = b.title
-      left join books_db.Ratings r on b.id = r.id
-      GROUP BY a.author
-      having COUNT(DISTINCT r.id, r.userId) > 500 and num_books > 5
-      ORDER BY avg(r.score) DESC
-      limit 10
+    SELECT *
+    FROM authors_best_materialized
     `);
 
-    // const valueAuthorsData = await queryDatabase(`
-    //   SELECT
-    //     a.author,
-    //     count(DISTINCT a.title) as num_books,
-    //     COUNT(DISTINCT r.id, r.userId) as num_ratings,
-    //     avg(r.score) as average_score,
-    //     avg(b.price) as average_price,
-    //     avg(b.price)/avg(r.score) as price_per_score
-    //   FROM books_db.Authors a
-    //   left join books_db.Books b on a.title = b.title
-    //   left join books_db.Ratings r on b.id = r.id
-    //   GROUP BY a.author
-    //   having COUNT(DISTINCT r.id, r.userId) > 100 and avg(r.score) > 0
-    //   ORDER BY price_per_score
-    //   limit 10
-    // `);
+    const valueAuthorsData = await queryDatabase(`
+    SELECT author, num_books, num_ratings, average_score, average_price, CONCAT('$', FORMAT(price_per_score, 2)) as price_per_score
+    FROM authors_value_materialized
+    `);
 
     if (highAuthorsData.length === 0 && bestAuthorsData.length === 0) {
       return res.json({});
@@ -422,6 +395,7 @@ const author = async function(req, res) {
     const result = {
       highAuthors: highAuthorsData,
       bestAuthors: bestAuthorsData,
+      valueAuthors: valueAuthorsData
     };
 
     res.json(result);
@@ -437,15 +411,15 @@ const genre_authors = async function(req, res) {
     a.author,
     count(DISTINCT a.title) as num_books,
     COUNT(DISTINCT r.id, r.userId) as num_ratings,
-    avg(r.score) as average_score
+    round(avg(r.score),2) as average_score
   FROM books_db.Authors a
-  left join books_db.Books b on a.title = b.title
-  left join books_db.Ratings r on b.id = r.id
-  WHERE b.categories = '${req.params.genre}'
+  join books_db.Books b on a.title = b.title
+  join books_db.Ratings r on b.id = r.id
+  where categories = '${req.params.genre}'
   GROUP BY a.author
-  having COUNT(DISTINCT r.id, r.userId) > 100 and count(DISTINCT a.title) > 5
+  having COUNT(DISTINCT r.id, r.userId) > 50
   ORDER BY avg(r.score) DESC
-  limit 10
+  limit 5
   `, (err, data) => {
     if (err || data.length === 0){
       console.log(err);
@@ -461,7 +435,7 @@ const author_top = async function(req, res) {
     SELECT
       a.author,
       a.title,
-      avg(r.score) as average_Rating
+      round(avg(r.score), 2) as average_rating
     FROM books_db.Authors a
     left join books_db.Books b on a.title = b.title
     left join books_db.Ratings r on b.id = r.id
@@ -477,6 +451,13 @@ const author_top = async function(req, res) {
       res.json(data);
     }
   })
+}
+
+
+module.exports = {
+  author,
+  genre_authors,
+  author_top
 }
 
 // Route 1: GET /bookpopup
