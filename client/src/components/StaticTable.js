@@ -32,7 +32,7 @@ export default function CustomTable({ data, columns }) {
                   key={column.field}
                   align={column.align || 'left'}
                   style={{ minWidth: column.minWidth }}
-                  sx={{backgroundColor: '#1338BE', color: "white", fontWeight: "bold"}}
+                  sx={{backgroundColor: '#008F7A', color: "white", fontWeight: "bold"}}
                 >
                   {column.headerName}
                 </TableCell>
