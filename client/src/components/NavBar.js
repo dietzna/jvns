@@ -37,7 +37,7 @@ export default function NavBar() {
       <Container maxWidth='xl'>
         <Toolbar disableGutters>
           <NavText href='/' text='PAGETURNER' isMain />
-          <NavText href='/authors' text='AUTHORS' />
+          <NavText href='/author' text='AUTHORS' />
           <NavText href='/books' text='BOOKS' />
           <NavText href='/users' text='USERS' />
         </Toolbar>
