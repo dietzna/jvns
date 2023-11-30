@@ -42,6 +42,15 @@ const welcomeMessageStyle = {
       paddingBottom: '20px',
   };
 
+  const fullCenter = {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
+
   const columnStyle = {
     display: 'flex',
     flexDirection: 'row',
@@ -54,12 +63,32 @@ const welcomeMessageStyle = {
   };
 
   const imageStyle = {
-    width: '400',            // Set the width of the image
-    height: 'auto',            // Maintain the aspect ratio
-    boxShadow: '15px 15px 20px rgba(0, 0, 0, 0.3)',  // Add a shadow effect
-    // marginBottom: '60px'
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
   };
 
+  const overlayStyle = {
+    position: 'absolute',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the alpha value for the darkness level
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    zIndex: 1,
+  };
+  const imageContainerStyle = {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+  };
+  const buttonContainerStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: 10, // Ensure the button is above the overlay
+  };
   const handleSearchIconClick = () => {
     fetchData();
   };
@@ -111,20 +140,18 @@ const welcomeMessageStyle = {
 
   return (
     <Container>
-      <div style = {containerStyle}></div>
-      <div style={welcomeMessageStyle}>
-        <h2>Welcome to PageTurner</h2>
+      <div style = {fullCenter}>
+        <div imageContainerStyle>
+      <img src={'https://images.pexels.com/photos/3952084/pexels-photo-3952084.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'} alt="Background" style={imageStyle} />
+      <div style={overlayStyle}></div>
       </div>
-      <div style = {containerStyle}></div>
-         <div style={welcomeMessageStyle}>
-          <div style={columnStyle}>
-        <h2>Book of the Day</h2>
-            <h4>{selectedBookTitle}</h4><h5>{selectedBookAuthor}</h5>
-        <img src = {selectedBookImage}
-          alt = "Book of the Day cover image"
-          style = {imageStyle}
-        />
-        </div>
+      <div style={buttonContainerStyle}>
+        <TemporaryDrawer
+          selectedBookTitle={selectedBookTitle}
+          selectedBookAuthor={selectedBookAuthor}
+          selectedBookImage={selectedBookImage}
+      />
+      </div>
       </div>
       <div style = {containerStyle}></div>
       <Stack direction = "row" spacing = {2} alignItems = "stretch">
@@ -156,11 +183,6 @@ const welcomeMessageStyle = {
         )
         )}
       </div>
-     {/* <TemporaryDrawer
-        selectedBookTitle={selectedBookTitle}
-        selectedBookAuthor={selectedBookAuthor}
-        selectedBookImage={selectedBookImage}
-      /> */}
       <div style = {containerStyle}></div>
     </Container>
   );

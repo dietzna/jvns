@@ -5,23 +5,12 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import {useTheme} from '@mui/system';
 
-export default function CustomTable({ data, keyColumns }) {
+// Assuming columns and data are available in the scope of your component
+export default function CustomTable({ data, columns }) {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const theme = useTheme();
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+  const [rowsPerPage] = React.useState(10);
 
   if (!Array.isArray(data)) {
     // Handle the case when data is not an array (e.g., 0 results)
@@ -38,15 +27,12 @@ export default function CustomTable({ data, keyColumns }) {
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {keyColumns.map((column) => (
+              {columns.map((column) => (
                 <TableCell
                   key={column.field}
                   align={column.align || 'left'}
-                  style={{
-                    minWidth: column.minWidth,
-                    color: 'white', // Use primary text color from the theme
-                  }}
-                  sx={{ backgroundColor: theme.palette.primary.main }}
+                  style={{ minWidth: column.minWidth }}
+                  sx={{backgroundColor: '#008F7A', color: "white", fontWeight: "bold"}}
                 >
                   {column.headerName}
                 </TableCell>
@@ -58,7 +44,7 @@ export default function CustomTable({ data, keyColumns }) {
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, rowIndex) => (
                 <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
-                  {keyColumns.map((column) => (
+                  {columns.map((column) => (
                     <TableCell key={column.field} align={column.align || 'left'}>
                       {row[column.field]}
                     </TableCell>
@@ -68,15 +54,6 @@ export default function CustomTable({ data, keyColumns }) {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
-        component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
     </Paper>
   );
 }
