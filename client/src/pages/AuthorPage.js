@@ -106,7 +106,7 @@ function AuthorTable() {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      setGenreAuthors(data); 
+      setGenreAuthors(data);
     } catch (error) {
       console.error('Fetch error:', error);
     }
@@ -116,20 +116,18 @@ function AuthorTable() {
     console.log('Searching for author:', author);
     try {
       const response = await fetch(`http://${config.server_host}:${config.server_port}/author/name/${author}`);
-      
+
       if (!response.ok) {
         throw new Error(`Network response was not ok. Status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       console.log('Data received for author:', data);
-  
-      setBookAuthors(data); 
+
+      setBookAuthors(data);
     } catch (error) {
       console.error('Fetch error:', error);
     }
-  };
-  
   useEffect(() => {
     if (selectedGenre) {
       fetchGenreData(selectedGenre);
@@ -144,7 +142,7 @@ function AuthorTable() {
 
   return (
     <div style = {{display: 'grid', marginLeft: '40px', marginRight: '40px', gridRowGap: '20px'}}>
-  
+
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr 1fr', gridColumnGap: '20px'}}>
         <div> 
           <div class="header-container" style={headerStyle}>      
@@ -183,6 +181,8 @@ function AuthorTable() {
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gridColumnGap: '20px'}}>
         <div> 
             <h2>Top Authors by Genre</h2>     
+        <div>
+            <h2>Top Authors by Genre</h2>
             <FormControl fullWidth style = {{marginBottom: '15px'}}>
             <InputLabel id="demo-simple-select-label">Genre</InputLabel>
             <Select
@@ -199,11 +199,11 @@ function AuthorTable() {
                       <MenuItem value={'Computers'}>Computers</MenuItem>
             </Select>
             </FormControl>
-            <StaticTable data={genreAuthors} columns={genreAuthorsColumns}/> 
+            <StaticTable data={genreAuthors} columns={genreAuthorsColumns}/>
         </div>
 
-        <div> 
-            <h2>Top Books by Author</h2> 
+        <div>
+            <h2>Top Books by Author</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <TextField
                 label="Search"
@@ -220,16 +220,13 @@ function AuthorTable() {
                 Search
               </Button>
             </div>
-            <StaticTable data={bookAuthors} columns={bookAuthorsColumns}/> 
+            <StaticTable data={bookAuthors} columns={bookAuthorsColumns}/>
         </div>
 
-        
+
       </div>
 
     </div>
   )
 }
 export default AuthorTable;
-  
-
-

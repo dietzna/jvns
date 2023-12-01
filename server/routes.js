@@ -28,28 +28,32 @@ function queryDatabase(sql) {
  * WARM UP ROUTES *
  ******************/
 // Route for users
-const users = async function(req, res) {
-  const username = req.query.username ?? "";
-	const reviewsLow = req.query.reviews_low ?? 0;
-	const reviewsHigh = req.query.reviews_high ?? 150;
-	const helpfulnessLow = req.query.helpfulness_low ?? 0;
-	const helpfulnessHigh = req.query.helpfulness_high ?? 1;
-  const orderBy = req.query.order_by ?? "num_reviews";
-
-	connection.query(
-		`WITH avg_ratings AS (
+/*`WITH avg_ratings AS (
       SELECT userId, AVG(helpfulness) AS helpfulness, COUNT(*) AS num_reviews
       FROM Ratings
       GROUP BY userId
     )
-    SELECT profileName, helpfulness, num_reviews
+    SELECT u.userId, profileName, helpfulness, num_reviews
     FROM User u JOIN avg_ratings r ON u.userId = r.userId
     WHERE profileName LIKE '%${username}%'
     AND (helpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh})
-    AND (num_reviews BETWEEN ${reviewsLow} AND ${reviewsHigh})
-    ORDER BY ${orderBy} DESC
-    LIMIT 10;
-    `,
+    AND (num_reviews BETWEEN ${reviewsLow} AND ${reviewsHigh});
+    `*/
+const users = async function(req, res) {
+  const username = req.query.username ?? "";
+	const reviewsLow = req.query.reviews_low ?? 0;
+	const reviewsHigh = req.query.reviews_high ?? 2500;
+	const helpfulnessLow = req.query.helpfulness_low ?? 0;
+	const helpfulnessHigh = req.query.helpfulness_high ?? 1;
+  const orderBy = req.query.order_by ?? "numReviews";
+
+  connection.query(
+    `SELECT profileName, avgHelpfulness, numReviews
+    FROM User
+    WHERE profileName LIKE '%${username}%'
+    AND avgHelpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh}
+    AND numReviews BETWEEN ${reviewsLow} AND ${reviewsHigh}
+    ORDER BY ${orderBy} DESC`,
 		(err, data) => {
 			if (err || data.length === 0) {
 				console.log(err);
@@ -59,6 +63,23 @@ const users = async function(req, res) {
 			}
 		}
 	);
+
+	/*connection.query(
+    `WITH p_user AS (SELECT * FROM User WHERE profileName LIKE '%${username}%')
+    SELECT u.profileName, AVG(helpfulness) AS helpfulness, COUNT(score) AS num_reviews
+    FROM p_user u JOIN Ratings r ON u.userId = r.userId
+    GROUP BY u.userId
+    HAVING AVG(helpfulness)  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh}
+    AND num_reviews BETWEEN ${reviewsLow} AND ${reviewsHigh}`,
+		(err, data) => {
+			if (err || data.length === 0) {
+				console.log(err);
+				res.json([]);
+			} else {
+				res.json(data);
+			}
+		}
+	);*/
 }
 
 // Route for books search bar
