@@ -128,6 +128,8 @@ function AuthorTable() {
     } catch (error) {
       console.error('Fetch error:', error);
     }
+  };
+  
   useEffect(() => {
     if (selectedGenre) {
       fetchGenreData(selectedGenre);
@@ -142,7 +144,6 @@ function AuthorTable() {
 
   return (
     <div style = {{display: 'grid', marginLeft: '40px', marginRight: '40px', gridRowGap: '20px'}}>
-
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr 1fr', gridColumnGap: '20px'}}>
         <div> 
           <div class="header-container" style={headerStyle}>      
@@ -179,8 +180,6 @@ function AuthorTable() {
       </div>
 
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gridColumnGap: '20px'}}>
-        <div> 
-            <h2>Top Authors by Genre</h2>     
         <div>
             <h2>Top Authors by Genre</h2>
             <FormControl fullWidth style = {{marginBottom: '15px'}}>
@@ -222,10 +221,7 @@ function AuthorTable() {
             </div>
             <StaticTable data={bookAuthors} columns={bookAuthorsColumns}/>
         </div>
-
-
       </div>
-
     </div>
   )
 }
