@@ -524,64 +524,24 @@ const bookpopup = async function(req, res) {
 //route 2 get /publisher
 const publisher = async function(req, res) {
   try {
-      const pubtopauthdata = await queryDatabase(`
-      WITH inventory
-      AS (SELECT
-             b.publisher,
-             a.author,
-             Count(*) cnt,
-             ROW_NUMBER() OVER (
-                PARTITION BY b.publisher
-                ORDER BY Count(*) DESC) row_num
-          FROM
-             Books b, Authors a
-          WHERE
-             b.title = a.title
-          GROUP BY
-              b.publisher, a.author
-         )
-      SELECT
-         publisher,
-         author
-      FROM
-         inventory
-      WHERE
-         row_num < 4
+      const highPublishersData = await queryDatabase(`
+      SELECT *
+      FROM publishers_high_materialized
       `);
-      const pubavgpricedata = await queryDatabase(`
-      SELECT publisher, Avg(Price)
-      FROM Books
-      GROUP BY publisher
+      const topPublishersData = await queryDatabase(`
+      SELECT *
+      FROM publishers_best_materialized
       `);
-      const pubtopcatdata = await queryDatabase(`
-      WITH inventory
-      AS (SELECT
-            publisher,
-            categories,
-            Count(*) cnt,
-            ROW_NUMBER() OVER (
-                PARTITION BY publisher
-                ORDER BY Count(*) DESC) row_num
-        FROM
-          Books
-        Where categories is not null
-          group by publisher,
-        categories
-        )
-      SELECT
-        publisher,
-        categories
-      FROM
-        inventory
-      WHERE
-        row_num < 4`);
-      if (pubtopcatdata.length === 0 && pubavgpricedata.length === 0 && pubtopauthdata.length === 0) {
+      const valuePublishersData = await queryDatabase(`
+      SELECT publisher, num_books, num_ratings, average_score, average_price, CONCAT('$', FORMAT(price_per_score, 2)) as price_per_score
+    FROM publishers_value_materialized`);
+      if (highPublishersData.length === 0 && topPublishersData.length === 0 && valuePublishersData.length === 0) {
         return res.json({});
       }
       const result = {
-        pubTopAuthor: pubtopauthdata,
-        pubAvgPrice: pubavgpricedata,
-        pubTopCat: pubtopcatdata,
+        highPublishers: highPublishersData,
+        topPublishers: topPublishersData,
+        valuePublishers: valuePublishersData,
       };
       res.json(result);
     } catch (err) {
@@ -589,6 +549,67 @@ const publisher = async function(req, res) {
       res.json({});
     }
   };
+
+  const genre_publishers = async function(req, res) {
+    connection.query(`
+    SELECT
+      b.publisher,
+      count(DISTINCT b.id) as num_books,
+      COUNT(DISTINCT r.id, r.userId) as num_ratings,
+      round(avg(r.score),2) as average_score
+    FROM books_db.Books b
+    join books_db.Ratings r on b.id = r.id
+    where categories = '${req.params.genre}'
+    GROUP BY b.publisher
+    having COUNT(DISTINCT r.id, r.userId) > 500
+    ORDER BY avg(r.score) DESC
+    limit 5
+    `, (err, data) => {
+      if (err || data.length === 0){
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
+    })
+  }
+
+  const publisher_top = async function(req, res) {
+    connection.query(`
+    WITH inventory
+    AS (SELECT
+           b.publisher,
+           a.author,
+           Count(*) cnt,
+           ROW_NUMBER() OVER (
+              PARTITION BY b.publisher
+              ORDER BY Count(*) DESC) row_num
+        FROM
+           Books b, Authors a
+        WHERE
+           b.title = a.title and
+           b.publisher = '${req.params.publisher}'
+        GROUP BY
+            b.publisher, a.author
+       )
+    SELECT
+       publisher,
+       author,
+       cnt
+    FROM
+       inventory
+    WHERE
+       row_num <= 5
+    Order by row_num
+    `, (err, data) => {
+      if (err || data.length === 0){
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
+    })
+  }
 
 module.exports = {
   users,
@@ -607,5 +628,7 @@ module.exports = {
   genre_authors,
   author_top,
     publisher,
-    bookpopup
+    bookpopup,
+    genre_publishers,
+    publisher_top
 }

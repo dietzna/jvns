@@ -21,6 +21,7 @@ function AuthorTable() {
     fetch(`http://${config.server_host}:${config.server_port}/author`)
       .then(response => response.json())
       .then(data => {
+        console.log(data);
         setHighAuthors(data.highAuthors);
         setBestAuthors(data.bestAuthors);
         setValueAuthors(data.valueAuthors);
@@ -34,7 +35,7 @@ function AuthorTable() {
       headerName: 'Author',
     },
     {
-      field: 'num_titles',
+      field: 'num_books',
       headerName: 'Number of Titles'
     }
   ]
@@ -45,7 +46,7 @@ function AuthorTable() {
       headerName: 'Author',
     },
     {
-      field: 'average_score',
+      field: 'avg_rating',
       headerName: 'Average Rating'
     }
   ]
@@ -113,7 +114,6 @@ function AuthorTable() {
   };
 
   const fetchAuthorData = async (author) => {
-    console.log('Searching for author:', author);
     try {
       const response = await fetch(`http://${config.server_host}:${config.server_port}/author/name/${author}`);
 
@@ -122,12 +122,12 @@ function AuthorTable() {
       }
 
       const data = await response.json();
-      console.log('Data received for author:', data);
 
       setBookAuthors(data);
     } catch (error) {
       console.error('Fetch error:', error);
     }
+  };
   useEffect(() => {
     if (selectedGenre) {
       fetchGenreData(selectedGenre);
@@ -142,11 +142,10 @@ function AuthorTable() {
 
   return (
     <div style = {{display: 'grid', marginLeft: '40px', marginRight: '40px', gridRowGap: '20px'}}>
-
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr 1fr', gridColumnGap: '20px'}}>
         <div> 
           <div class="header-container" style={headerStyle}>      
-            <h2>Most Prolific Authors</h2> 
+            <h2>Top Authors by Volume</h2> 
             <Tooltip title="Authors with the most number of books">
               <IconButton aria-label="Info">
                   <InfoIcon />
@@ -157,7 +156,7 @@ function AuthorTable() {
         </div>
         <div> 
           <div class="header-container" style={headerStyle}> 
-            <h2>Highly Rated Authors</h2> 
+            <h2>Top Authors by Rating</h2> 
             <Tooltip title="Highest rated authors with at least 500 ratings">
               <IconButton aria-label="Info">
                   <InfoIcon />
@@ -179,8 +178,6 @@ function AuthorTable() {
       </div>
 
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gridColumnGap: '20px'}}>
-        <div> 
-            <h2>Top Authors by Genre</h2>     
         <div>
             <h2>Top Authors by Genre</h2>
             <FormControl fullWidth style = {{marginBottom: '15px'}}>
@@ -222,10 +219,7 @@ function AuthorTable() {
             </div>
             <StaticTable data={bookAuthors} columns={bookAuthorsColumns}/>
         </div>
-
-
       </div>
-
     </div>
   )
 }
