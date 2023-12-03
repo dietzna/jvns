@@ -23,7 +23,8 @@ export default function TemporaryDrawer({ selectedBookTitle, selectedBookAuthor,
       sx={{
         width: 250,
         padding: 2,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: theme.palette.primary.main,
+        color: 'white',
       }}
       role="presentation"
       onClick={toggleDrawer('left', false)}
