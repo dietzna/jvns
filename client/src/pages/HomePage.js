@@ -97,7 +97,8 @@ const welcomeMessageStyle = {
       try {
         const response = await fetch(route);
         const result = await response.json();
-        setData(result);
+
+    setData(result);
         setShowResults(true);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -117,7 +118,11 @@ const welcomeMessageStyle = {
       setBookAuthor(bookOfTheDay.author);
       setBookImage(bookOfTheDay.image);
     }, [bookOfTheDay]);
-   
+
+   const renderAuthors = (authors) => {
+    return authors.join(', ');
+  };
+
     const bookColumns = [
       {
         field: 'title',
@@ -125,8 +130,9 @@ const welcomeMessageStyle = {
         // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink> 
       },
       {
-        field: 'author',
-        headerName: 'Author'
+        field: 'authors',
+        headerName: 'Author',
+        renderCell: (row) => renderAuthors(row.data.authors),
       },
       {
         field: 'publisher',

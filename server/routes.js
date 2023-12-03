@@ -87,10 +87,11 @@ const search_bar = async function(req, res) {
   if (req.query.type === 'title') {
     var book_title = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
-    FROM Books b JOIN Authors a ON b.title = a.title
-    WHERE b.title LIKE '%${book_title}%'
-    LIMIT 100
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
+      FROM Books b JOIN Authors a ON b.title = a.title
+      WHERE b.title LIKE '%${book_title}%'
+      GROUP BY b.title, b.publisher, b.categories
+      LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -102,10 +103,11 @@ const search_bar = async function(req, res) {
   } else if (req.query.type === 'author') {
     var author = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE a.author LIKE '%${author}%'
-    LIMIT 10
+    GROUP BY b.title, b.publisher, b.categories
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -117,10 +119,11 @@ const search_bar = async function(req, res) {
   } else if (req.query.type === 'genre') {
     var genre = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.categories LIKE '%${genre}%'
-    LIMIT 10
+    GROUP BY b.title, b.publisher, b.categories
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -132,10 +135,11 @@ const search_bar = async function(req, res) {
   } else if (req.query.type === 'publisher') {
     var publisher = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.publisher LIKE '%${publisher}%'
-    LIMIT 10
+    GROUP BY b.title, b.publisher, b.categories
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
