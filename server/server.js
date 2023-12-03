@@ -29,6 +29,8 @@ app.get('/author', routes.author);
 app.get('/author/genre/:genre', routes.genre_authors);
 app.get('/author/name/:author', routes.author_top);
 app.get('/publisher', routes.publisher);
+app.get('/publisher/genre/:genre', routes.genre_publishers);
+app.get('/publisher/name/:publisher', routes.publisher_top);
 app.get('/bookpopup/:title', routes.bookpopup);
 
 app.listen(config.server_port, () => {
