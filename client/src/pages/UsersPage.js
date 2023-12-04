@@ -19,7 +19,12 @@ export default function UsersPage() {
     fetch(`http://${config.server_host}:${config.server_port}/users`)
       .then(res => res.json())
       .then(resJson => {
-        const usersWithId = resJson.map((user) => ({ id: user.userId, ...user }));
+        //const usersWithId = resJson.map((user) => ({ id: user.userId, ...user }));
+        const usersWithId = resJson.map((user) =>
+        ({ id: user.userId,
+          profileName: user.profileName,
+          avgHelpfulness: Math.round(user.avgHelpfulness * 100) + '%',
+          numReviews: user.numReviews}));
         setData(usersWithId);
       });
   }, []);
@@ -32,7 +37,12 @@ export default function UsersPage() {
     )
       .then(res => res.json())
       .then(resJson => {
-        const usersWithId = resJson.map((user) => ({ id: user.userId, ...user }));
+        //const usersWithId = resJson.map((user) => ({ id: user.userId, ...user }));
+        const usersWithId = resJson.map((user) =>
+        ({ id: user.userId,
+          profileName: user.profileName,
+          avgHelpfulness: Math.round(user.avgHelpfulness * 100) + '%',
+          numReviews: user.numReviews}));
         setData(usersWithId);
       });
   }
@@ -65,10 +75,11 @@ export default function UsersPage() {
   return (
     <Container>
       <h2>Search Users</h2>
-      <Grid container spacing={6}>
-        <Grid item xs={6}>
+      <Grid container spacing={4}>
+      <Grid item xs={6}>
           <TextField label='Username' value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: "100%" }}/>
         </Grid>
+
         <Grid item xs={3}>
           <FormControlLabel
             label='Sort by Reviews'
@@ -77,6 +88,7 @@ export default function UsersPage() {
               onChange={handleChangeOrderByReviews} />}
           />
         </Grid>
+
         <Grid item xs={3}>
           <FormControlLabel
             label='Sort by Helpfulness'
@@ -85,6 +97,7 @@ export default function UsersPage() {
               onChange={handleChangeOrderByHelp} />}
           />
         </Grid>
+
         <Grid item xs={6}>
           <p>Average Helpfulness</p>
           <Slider
@@ -96,6 +109,7 @@ export default function UsersPage() {
             valueLabelDisplay='auto'
           />
         </Grid>
+
         <Grid item xs={6}>
           <p>Number of Reviews</p>
           <Slider
@@ -108,10 +122,14 @@ export default function UsersPage() {
           />
         </Grid>
 
-      </Grid>
-      <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
+      <Grid item xs={12}>
+        <Button onClick={() => search() } style={{ left: '50%', transform: 'translateX(-50%)' }}>
         Search
       </Button>
+      </Grid>
+
+      </Grid>
+
       <h2>Results</h2>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         {(data.length === 0 ? (

@@ -1,5 +1,7 @@
-import { AppBar, Container, Toolbar, Typography } from '@mui/material'
+import { AppBar, Container, Toolbar, Typography, Box, Link } from '@mui/material'
 import { NavLink } from 'react-router-dom';
+import logo from './wormy.png';
+
 
 // The hyperlinks in the NavBar contain a lot of repeated formatting code so a
 // helper component NavText local to the file is defined to prevent repeated code.
@@ -37,6 +39,14 @@ export default function NavBar() {
       <Container maxWidth='xl'>
         <Toolbar disableGutters>
           <NavText href='/' text='PAGETURNER' isMain />
+          <Link href="/">
+            <Box
+              component="img"
+              sx={{ height: 25, ml: -4, mr: 5}}
+              alt="Logo"
+              src={logo}
+            />
+          </Link>
           <NavText href='/author' text='AUTHORS' />
           <NavText href='/books' text='BOOKS' />
           <NavText href='/users' text='USERS' />

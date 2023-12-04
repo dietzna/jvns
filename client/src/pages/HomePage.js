@@ -127,7 +127,7 @@ const welcomeMessageStyle = {
       {
         field: 'title',
         headerName: 'Book Title',
-        // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink> 
+        // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink>
       },
       {
         field: 'authors',
