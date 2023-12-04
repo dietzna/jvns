@@ -10,6 +10,8 @@ import SongsPage from './pages/SongsPage';
 import AlbumInfoPage from './pages/AlbumInfoPage'
 import UsersPage from './pages/UsersPage'
 import AuthorPage from './pages/AuthorPage'
+import PublisherPage from './pages/PublisherPage'
+import BookInfoPage from './pages/BookInfoPage'
 
 // createTheme enables you to customize the look and feel of your app past the default
 // in this case, we only change the color scheme
@@ -41,6 +43,8 @@ export default function App() {
           <Route path="/songs" element={<SongsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/author" element={<AuthorPage />} />
+          <Route path="/publisher" element={<PublisherPage />} />
+          <Route path="/bookpopup/:title" element={<BookInfoPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

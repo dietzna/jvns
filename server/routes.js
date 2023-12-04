@@ -88,10 +88,11 @@ const search_bar = async function(req, res) {
   if (req.query.type === 'title') {
     var book_title = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
-    FROM Books b JOIN Authors a ON b.title = a.title
-    WHERE b.title LIKE '%${book_title}%'
-    LIMIT 100
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
+      FROM Books b JOIN Authors a ON b.title = a.title
+      WHERE b.title LIKE '%${book_title}%'
+      GROUP BY b.title, b.publisher, b.categories
+      LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -103,10 +104,11 @@ const search_bar = async function(req, res) {
   } else if (req.query.type === 'author') {
     var author = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE a.author LIKE '%${author}%'
-    LIMIT 10
+    GROUP BY b.title, b.publisher, b.categories
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -118,10 +120,11 @@ const search_bar = async function(req, res) {
   } else if (req.query.type === 'genre') {
     var genre = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.categories LIKE '%${genre}%'
-    LIMIT 10
+    GROUP BY b.title, b.publisher, b.categories
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -133,10 +136,11 @@ const search_bar = async function(req, res) {
   } else if (req.query.type === 'publisher') {
     var publisher = req.query.keyword;
     connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories
+    SELECT b.title, b.publisher, GROUP_CONCAT(a.author) as authors, b.categories
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.publisher LIKE '%${publisher}%'
-    LIMIT 10
+    GROUP BY b.title, b.publisher, b.categories
+    LIMIT 100
   `, (err, data) => {
     if (err || data.length === 0) {
       console.log(err);
@@ -154,9 +158,10 @@ const search_bar = async function(req, res) {
 // Route for getting book of the day
 const random_book = async function(req, res) {
   connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories, image
+    SELECT b.title, GROUP_CONCAT(a.author) as author, image
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.title IS NOT NULL AND author IS NOT NULL and image IS NOT NULL
+    GROUP BY b.title, b.publisher, b.categories
     ORDER BY RAND()
     LIMIT 1
   `, (err, data) => {
@@ -525,64 +530,24 @@ const bookpopup = async function(req, res) {
 //route 2 get /publisher
 const publisher = async function(req, res) {
   try {
-      const pubtopauthdata = await queryDatabase(`
-      WITH inventory
-      AS (SELECT
-             b.publisher,
-             a.author,
-             Count(*) cnt,
-             ROW_NUMBER() OVER (
-                PARTITION BY b.publisher
-                ORDER BY Count(*) DESC) row_num
-          FROM
-             Books b, Authors a
-          WHERE
-             b.title = a.title
-          GROUP BY
-              b.publisher, a.author
-         )
-      SELECT
-         publisher,
-         author
-      FROM
-         inventory
-      WHERE
-         row_num < 4
+      const highPublishersData = await queryDatabase(`
+      SELECT *
+      FROM publishers_high_materialized
       `);
-      const pubavgpricedata = await queryDatabase(`
-      SELECT publisher, Avg(Price)
-      FROM Books
-      GROUP BY publisher
+      const topPublishersData = await queryDatabase(`
+      SELECT *
+      FROM publishers_best_materialized
       `);
-      const pubtopcatdata = await queryDatabase(`
-      WITH inventory
-      AS (SELECT
-            publisher,
-            categories,
-            Count(*) cnt,
-            ROW_NUMBER() OVER (
-                PARTITION BY publisher
-                ORDER BY Count(*) DESC) row_num
-        FROM
-          Books
-        Where categories is not null
-          group by publisher,
-        categories
-        )
-      SELECT
-        publisher,
-        categories
-      FROM
-        inventory
-      WHERE
-        row_num < 4`);
-      if (pubtopcatdata.length === 0 && pubavgpricedata.length === 0 && pubtopauthdata.length === 0) {
+      const valuePublishersData = await queryDatabase(`
+      SELECT publisher, num_books, num_ratings, average_score, average_price, CONCAT('$', FORMAT(price_per_score, 2)) as price_per_score
+    FROM publishers_value_materialized`);
+      if (highPublishersData.length === 0 && topPublishersData.length === 0 && valuePublishersData.length === 0) {
         return res.json({});
       }
       const result = {
-        pubTopAuthor: pubtopauthdata,
-        pubAvgPrice: pubavgpricedata,
-        pubTopCat: pubtopcatdata,
+        highPublishers: highPublishersData,
+        topPublishers: topPublishersData,
+        valuePublishers: valuePublishersData,
       };
       res.json(result);
     } catch (err) {
@@ -590,6 +555,70 @@ const publisher = async function(req, res) {
       res.json({});
     }
   };
+
+  const genre_publishers = async function(req, res) {
+    connection.query(`
+    SELECT
+      b.publisher,
+      count(DISTINCT b.id) as num_books,
+      COUNT(DISTINCT r.id, r.userId) as num_ratings,
+      round(avg(r.score),2) as average_score
+    FROM books_db.Books b
+    join books_db.Ratings r on b.id = r.id
+    where categories = '${req.params.genre}'
+    GROUP BY b.publisher
+    having COUNT(DISTINCT r.id, r.userId) > 500
+    ORDER BY avg(r.score) DESC
+    limit 5
+    `, (err, data) => {
+      if (err || data.length === 0){
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
+    })
+  }
+
+  const publisher_top = async function(req, res) {
+    connection.query(`
+    WITH PublisherTotals AS (
+      SELECT
+        publisher,
+        COUNT(DISTINCT title) AS total_books
+      FROM books_db.Books
+      GROUP BY publisher
+    ),
+    CategoryAverages AS (
+      SELECT
+        b.publisher AS publisher,
+        b.categories AS category,
+        AVG(r.score) AS average_ratings,
+        COUNT(DISTINCT b.title) AS books_in_category
+      FROM books_db.Books b
+      JOIN books_db.Ratings r ON b.id = r.id
+      GROUP BY b.publisher, b.categories
+    )
+    SELECT
+      ca.publisher AS publisher,
+      ca.category AS category,
+      ROUND(ca.books_in_category / pt.total_books, 2) AS volume,
+      ROUND(ca.average_ratings / 5.0, 2) AS quality,
+      ROUND(0.5 * (ca.books_in_category / pt.total_books) + 0.5 * (ca.average_ratings / 5.0), 2) AS specialization_score
+    FROM CategoryAverages ca
+    JOIN PublisherTotals pt ON ca.publisher = pt.publisher
+    WHERE ca.publisher = '${req.params.publisher}'
+    ORDER BY specialization_score DESC
+    LIMIT 5
+    `, (err, data) => {
+      if (err || data.length === 0){
+        console.log(err);
+        res.json({});
+      } else {
+        res.json(data);
+      }
+    })
+  }
 
 module.exports = {
   users,
@@ -608,5 +637,7 @@ module.exports = {
   genre_authors,
   author_top,
     publisher,
-    bookpopup
+    bookpopup,
+    genre_publishers,
+    publisher_top
 }

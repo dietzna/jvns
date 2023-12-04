@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { InputLabel, MenuItem, FormControl, Select, TextField, Button} from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import StaticTable from '../components/StaticTable';
+import InfoIcon from '@mui/icons-material/Info';
+import Tooltip from '@mui/material/Tooltip';
 const config = require('../config.json');
 
 function AuthorTable() {
@@ -18,6 +21,7 @@ function AuthorTable() {
     fetch(`http://${config.server_host}:${config.server_port}/author`)
       .then(response => response.json())
       .then(data => {
+        console.log(data);
         setHighAuthors(data.highAuthors);
         setBestAuthors(data.bestAuthors);
         setValueAuthors(data.valueAuthors);
@@ -31,7 +35,7 @@ function AuthorTable() {
       headerName: 'Author',
     },
     {
-      field: 'num_titles',
+      field: 'num_books',
       headerName: 'Number of Titles'
     }
   ]
@@ -42,7 +46,7 @@ function AuthorTable() {
       headerName: 'Author',
     },
     {
-      field: 'average_score',
+      field: 'avg_rating',
       headerName: 'Average Rating'
     }
   ]
@@ -110,7 +114,6 @@ function AuthorTable() {
   };
 
   const fetchAuthorData = async (author) => {
-    console.log('Searching for author:', author);
     try {
       const response = await fetch(`http://${config.server_host}:${config.server_port}/author/name/${author}`);
 
@@ -119,28 +122,59 @@ function AuthorTable() {
       }
 
       const data = await response.json();
-      console.log('Data received for author:', data);
 
       setBookAuthors(data);
     } catch (error) {
       console.error('Fetch error:', error);
     }
   };
-
-
   useEffect(() => {
     if (selectedGenre) {
       fetchGenreData(selectedGenre);
     }
   }, [selectedGenre]);
 
+  const headerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+};
+
   return (
     <div style = {{display: 'grid', marginLeft: '40px', marginRight: '40px', gridRowGap: '20px'}}>
-
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr 1fr', gridColumnGap: '20px'}}>
-        <div> <h2>Most Prolific Authors</h2> <StaticTable data={highAuthors} columns={highAuthorsColumns} /> </div>
-        <div> <h2>Highly Rated Authors</h2> <StaticTable data={bestAuthors} columns={bestAuthorsColumns} /> </div>
-        <div> <h2>Highest Value Authors</h2> <StaticTable data={valueAuthors} columns={valueAuthorsColumns} /> </div>
+        <div> 
+          <div class="header-container" style={headerStyle}>      
+            <h2>Top Authors by Volume</h2> 
+            <Tooltip title="Authors with the most number of books">
+              <IconButton aria-label="Info">
+                  <InfoIcon />
+              </IconButton> 
+            </Tooltip>       
+          </div>
+          <StaticTable data={highAuthors} columns={highAuthorsColumns} /> 
+        </div>
+        <div> 
+          <div class="header-container" style={headerStyle}> 
+            <h2>Top Authors by Rating</h2> 
+            <Tooltip title="Highest rated authors with at least 500 ratings">
+              <IconButton aria-label="Info">
+                  <InfoIcon />
+              </IconButton> 
+            </Tooltip> 
+          </div>
+          <StaticTable data={bestAuthors} columns={bestAuthorsColumns} /> </div>
+        <div> 
+          <div class="header-container" style={headerStyle}> 
+            <h2>Highest Value Authors</h2> 
+            <Tooltip title="Authors with the 'best value' (based on average book price / average star rating)">
+              <IconButton aria-label="Info">
+                  <InfoIcon />
+              </IconButton> 
+            </Tooltip> 
+          </div>
+          <StaticTable data={valueAuthors} columns={valueAuthorsColumns} /> 
+        </div>
       </div>
 
       <div style={{ display: 'grid', flexDirection: 'column', gridTemplateColumns: '1fr 1fr', gridColumnGap: '20px'}}>
@@ -185,10 +219,7 @@ function AuthorTable() {
             </div>
             <StaticTable data={bookAuthors} columns={bookAuthorsColumns}/>
         </div>
-
-
       </div>
-
     </div>
   )
 }

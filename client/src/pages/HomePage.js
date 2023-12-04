@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import { Container, Divider, IconButton, Link, Stack, Box, TextField} from '@mui/material';
+import { Container, Divider, IconButton, Link, Stack, Box, TextField, Button} from '@mui/material';
 import { useTheme } from '@mui/system';
 import { NavLink } from 'react-router-dom';
 import CustomTable from '../components/CustomTable';
@@ -97,7 +97,8 @@ const welcomeMessageStyle = {
       try {
         const response = await fetch(route);
         const result = await response.json();
-        setData(result);
+
+    setData(result);
         setShowResults(true);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -118,6 +119,10 @@ const welcomeMessageStyle = {
       setBookImage(bookOfTheDay.image);
     }, [bookOfTheDay]);
 
+   const renderAuthors = (authors) => {
+    return authors.join(', ');
+  };
+
     const bookColumns = [
       {
         field: 'title',
@@ -125,8 +130,9 @@ const welcomeMessageStyle = {
         // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink>
       },
       {
-        field: 'author',
-        headerName: 'Author'
+        field: 'authors',
+        headerName: 'Author',
+        renderCell: (row) => renderAuthors(row.data.authors),
       },
       {
         field: 'publisher',
@@ -154,6 +160,7 @@ const welcomeMessageStyle = {
       </div>
       </div>
       <div style = {containerStyle}></div>
+      <h2>Find Your Next Read:</h2>
       <Stack direction = "row" spacing = {2} alignItems = "stretch">
         <SplitButton
           selectedType={selectedType}
@@ -169,9 +176,16 @@ const welcomeMessageStyle = {
           onChange={(e) => setQuery(e.target.value)}
         />
           </Box>
-          <IconButton aria-label = 'search' onClick = {handleSearchIconClick}>
+          <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSearchIconClick}>
+                {/* style={{ height: '38px', marginBottom: '18px'}}> */}
+                Search
+            </Button>
+          {/* <IconButton aria-label = 'search' onClick = {handleSearchIconClick}>
             <SearchIcon/>
-          </IconButton>
+          </IconButton> */}
       </Stack>
       <div style = {containerStyle}></div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>

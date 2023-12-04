@@ -50,7 +50,7 @@ export default function NavBar() {
           <NavText href='/author' text='AUTHORS' />
           <NavText href='/books' text='BOOKS' />
           <NavText href='/users' text='USERS' />
-
+          <NavText href='/publisher' text='PUBLISHERS' />
         </Toolbar>
       </Container>
     </AppBar>
