@@ -157,9 +157,10 @@ const search_bar = async function(req, res) {
 // Route for getting book of the day
 const random_book = async function(req, res) {
   connection.query(`
-    SELECT b.title, publisher, publishedDate, author, categories, image
+    SELECT b.title, GROUP_CONCAT(a.author) as author, image
     FROM Books b JOIN Authors a ON b.title = a.title
     WHERE b.title IS NOT NULL AND author IS NOT NULL and image IS NOT NULL
+    GROUP BY b.title, b.publisher, b.categories
     ORDER BY RAND()
     LIMIT 1
   `, (err, data) => {
