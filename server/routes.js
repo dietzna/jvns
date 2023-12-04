@@ -576,31 +576,34 @@ const publisher = async function(req, res) {
 
   const publisher_top = async function(req, res) {
     connection.query(`
-    WITH inventory
-    AS (SELECT
-           b.publisher,
-           a.author,
-           Count(*) cnt,
-           ROW_NUMBER() OVER (
-              PARTITION BY b.publisher
-              ORDER BY Count(*) DESC) row_num
-        FROM
-           Books b, Authors a
-        WHERE
-           b.title = a.title and
-           b.publisher = '${req.params.publisher}'
-        GROUP BY
-            b.publisher, a.author
-       )
+    WITH PublisherTotals AS (
+      SELECT
+        publisher,
+        COUNT(DISTINCT title) AS total_books
+      FROM books_db.Books
+      GROUP BY publisher
+    ),
+    CategoryAverages AS (
+      SELECT
+        b.publisher AS publisher,
+        b.categories AS category,
+        AVG(r.score) AS average_ratings,
+        COUNT(DISTINCT b.title) AS books_in_category
+      FROM books_db.Books b
+      JOIN books_db.Ratings r ON b.id = r.id
+      GROUP BY b.publisher, b.categories
+    )
     SELECT
-       publisher,
-       author,
-       cnt
-    FROM
-       inventory
-    WHERE
-       row_num <= 5
-    Order by row_num
+      ca.publisher AS publisher,
+      ca.category AS category,
+      ROUND(ca.books_in_category / pt.total_books, 2) AS volume,
+      ROUND(ca.average_ratings / 5.0, 2) AS quality,
+      ROUND(0.5 * (ca.books_in_category / pt.total_books) + 0.5 * (ca.average_ratings / 5.0), 2) AS specialization_score
+    FROM CategoryAverages ca
+    JOIN PublisherTotals pt ON ca.publisher = pt.publisher
+    WHERE ca.publisher = '${req.params.publisher}'
+    ORDER BY specialization_score DESC
+    LIMIT 5
     `, (err, data) => {
       if (err || data.length === 0){
         console.log(err);

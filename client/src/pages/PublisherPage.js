@@ -15,7 +15,7 @@ function PublisherTable() {
     const [genrePublishers, setGenrePublishers] = useState([]);
     const [selectedGenre, setSelectedGenre] = useState('');
   
-    const [authorPublishers, setAuthorPublishers] = useState([]);
+    const [catPublishers, setCatPublishers] = useState([]);
     const [selectedPublisher, setSelectedPublisher] = useState('');
    
     useEffect(() => {
@@ -82,14 +82,22 @@ function PublisherTable() {
         }
       ]
     
-      const authorPublishersColumns = [
+      const categoryPublishersColumns = [
         {
-          field: 'author',
-          headerName: 'Author',
+          field: 'category',
+          headerName: 'Category',
         },
         {
-          field: 'cnt',
-          headerName: 'Number of Books',
+          field: 'volume',
+          headerName: 'Volume Score',
+        },
+        {
+          field: 'quality',
+          headerName: 'Quality Score',
+        },
+        {
+          field: 'specialization_score',
+          headerName: 'Specialization Score',
         }
       ]
     
@@ -123,7 +131,7 @@ function PublisherTable() {
 
           const data = await response.json();
     
-          setAuthorPublishers(data);
+          setCatPublishers(data);
         } catch (error) {
           console.error('Fetch error:', error);
         }
@@ -201,7 +209,7 @@ return (
             </div>
 
             <div>
-            <h2>Top Authors by Publisher</h2>
+            <h2>Top Categories by Publisher</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <TextField
                 label="Search"
@@ -218,7 +226,7 @@ return (
                 Search
               </Button>
             </div>
-            <StaticTable data={authorPublishers} columns={authorPublishersColumns}/>
+            <StaticTable data={catPublishers} columns={categoryPublishersColumns}/>
         </div>
 
 
