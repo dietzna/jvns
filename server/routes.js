@@ -491,7 +491,7 @@ module.exports = {
 const bookpopup = async function(req, res) {
     var book_title = req.params.title;
     connection.query(`
-    SELECT b.title, group_concat(a.author), b.publisher, b.categories, b.description, b.image, b.infoLink
+    SELECT b.title, group_concat(a.author) as author, b.publisher, b.categories, b.description, b.image, b.infoLink
     FROM Books b, Authors a
     WHERE b.title = a.title and b.title LIKE '${book_title}'
     GROUP BY b.title, b.publisher, b.categories, b.description, b.image, b.infoLink
@@ -502,21 +502,21 @@ const bookpopup = async function(req, res) {
         //return
       } else {
       connection.query(`
-        With inventory as(
-          SELECT b.title, c.author, b.infoLink, r.userId, r.score, r.summary, r.ratingText,
-          ROW_NUMBER() OVER (
-                    PARTITION BY b.title
-                    ORDER BY r.helpfulness DESC) row_num
-          FROM Books b, Ratings r, (SELECT a.id as id, group_concat(b.author) as author
-                                    FROM  Books a, Authors b
-                                    WHERE a.title = b. title group by a.id) c
-          WHERE b.id = r.id and b.id = c.id and b.title LIKE '${book_title}'
-          )
-          SELECT *
-          FROM
-            inventory
-          WHERE
-            row_num < 4`, (err, ratingData) => {
+      With inventory as(
+        SELECT b.title, c.author, b.infoLink, r.userId, r.score, r.summary, r.ratingText,
+        ROW_NUMBER() OVER (
+                  PARTITION BY b.title
+                  ORDER BY r.helpfulness DESC) row_num
+        FROM Books b, Ratings r, (SELECT a.id as id, group_concat(b.author) as author
+                                  FROM  Books a, Authors b
+                                  WHERE a.title = b. title group by a.id) c
+        WHERE b.id = r.id and b.id = c.id and b.title LIKE '${book_title}'
+        )
+        SELECT a.title, a.author, a.infoLink, u.profileName, a.score, a.summary, a.ratingText, a.row_num
+        FROM
+          inventory a, User u
+        WHERE
+          row_num < 6 and a.userId = u.UserId`, (err, ratingData) => {
       if (err || ratingData.length === 0) {
         console.log(err);
         res.json({ bookDetails: bookData, ratings: [] });
