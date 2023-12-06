@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { formatDuration, formatReleaseDate } from '../helpers/formatter';
+import {useTheme} from '@mui/system';
 const config = require('../config.json');
+
 
 export default function BookInfoPage() {
   const { title } = useParams();
-
+  const theme = useTheme();
  const [bookData1, setBookData] = useState({bookDetails: [], ratings: []}); // default should actually just be [], but empty object element added to avoid error in template code
  const [isLoading, setIsLoading] = useState(false);
  const [error, setError] = useState(null);
@@ -75,17 +77,17 @@ setIsLoading(true);
         <TableContainer>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell key='user id'>User ID</TableCell>
-              <TableCell key='Score'>Score</TableCell>
-              <TableCell key='Summary'>Summary</TableCell>
-              <TableCell key='Review'>Review</TableCell>
+            <TableRow style={{backgroundColor: theme.palette.primary.main }}>
+              <TableCell key='user id' style={{ color: 'white', textAlign: 'center' }}>Profile Name</TableCell>
+              <TableCell key='Score' style={{ color: 'white', textAlign: 'center' }}>Score</TableCell>
+              <TableCell key='Summary' style={{ color: 'white', textAlign: 'center' }}>Summary</TableCell>
+              <TableCell key='Review' style={{ color: 'white', textAlign: 'center' }}>Review</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {firstBookRatings.map(bd => (
               <TableRow key={bd.userId}>
-                <TableCell key='user id'>{bd.userId}</TableCell>
+                <TableCell key='user id'>{bd.profileName}</TableCell>
                 <TableCell key='Score'>{bd.score}</TableCell>
                 <TableCell key='Summary'>{bd.summary}</TableCell>
                 <TableCell key='Review'>{bd.ratingText}</TableCell>
@@ -94,7 +96,7 @@ setIsLoading(true);
           </TableBody>
         </Table>
       </TableContainer>
-      <p>Find out more about "{firstBookDetails.title}" at: {firstBookDetails.infoLink}</p>
+      <p>Find out more about "{firstBookDetails.title}" <a href = {firstBookDetails.infoLink}>Here!</a></p>
     </Container>
       )}
   </div>
