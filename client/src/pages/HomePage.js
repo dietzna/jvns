@@ -1,14 +1,10 @@
 import React, { useEffect, useState} from 'react';
-import { Container, Divider, IconButton, Link, Stack, Box, TextField, Button} from '@mui/material';
-import { useTheme } from '@mui/system';
-import { NavLink } from 'react-router-dom';
+import { Container, Stack, Box, TextField, Button} from '@mui/material';
 import CustomTable from '../components/CustomTable';
 import SplitButton  from '../components/SplitButton';
-import SearchIcon from '@mui/icons-material/Search';
 import TemporaryDrawer from '../components/TemporaryDrawer';
 
 const config = require('../config.json');
-
 
 export default function HomePage() {
   const [bookOfTheDay, setBookOfTheDay] = useState({});
@@ -20,18 +16,6 @@ export default function HomePage() {
   const [selectedType, setSelectedType] = useState('title');
   const [query, setQuery] = useState('');
   const route = `http://${config.server_host}:${config.server_port}/search_bar?type=${selectedType}&keyword=${query}`;
-  const theme = useTheme();
-
-const welcomeMessageStyle = {
-  display: 'flex',
-  fontSize: '1em',
-  color: 'black',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: '6px', // Add padding for better visibility
-  borderRadius: '30px', // Add rounded corners
-  border: `4px solid ${theme.palette.secondary.main}`,
-};
 
   const containerStyle = {
       display: 'flex',
@@ -50,17 +34,6 @@ const welcomeMessageStyle = {
     alignItems: 'center',
     justifyContent: 'center',
   }
-
-  const columnStyle = {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '20px',
-    borderRadius: '10px',
-    margin: '10px', // Add margin for spacing between columns
-    gap: '20px',
-  };
 
   const imageStyle = {
     width: '100%',
@@ -89,65 +62,65 @@ const welcomeMessageStyle = {
     transform: 'translate(-50%, -50%)',
     zIndex: 10, // Ensure the button is above the overlay
   };
+  
   const handleSearchIconClick = () => {
     fetchData();
   };
 
-    const fetchData = async () => {
-      try {
-        const response = await fetch(route);
-        const result = await response.json();
+  const fetchData = async () => {
+    try {
+      const response = await fetch(route);
+      const result = await response.json();
 
-    setData(result);
-        setShowResults(true);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+      setData(result);
+      setShowResults(true);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
-    useEffect(() => {
-      fetch(`http://${config.server_host}:${config.server_port}/random_book`)
-        .then(res => res.json())
-        .then(resJson => {
-          setBookOfTheDay(resJson);
-          });
-    }, []);
+  useEffect(() => {
+    fetch(`http://${config.server_host}:${config.server_port}/random_book`)
+      .then(res => res.json())
+      .then(resJson => {
+        setBookOfTheDay(resJson);
+        });
+  }, []);
 
-    useEffect(() => {
-      setBookTitle(bookOfTheDay.title);
-      setBookAuthor(bookOfTheDay.author);
-      setBookImage(bookOfTheDay.image);
-    }, [bookOfTheDay]);
+  useEffect(() => {
+    setBookTitle(bookOfTheDay.title);
+    setBookAuthor(bookOfTheDay.author);
+    setBookImage(bookOfTheDay.image);
+  }, [bookOfTheDay]);
 
    const renderAuthors = (authors) => {
     return authors.join(', ');
   };
 
-    const bookColumns = [
-      {
-        field: 'title',
-        headerName: 'Book Title',
-        // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink> 
-      },
-      {
-        field: 'authors',
-        headerName: 'Author',
-        renderCell: (row) => renderAuthors(row.data.authors),
-      },
-      {
-        field: 'publisher',
-        headerName: 'Publisher'
-      },
-      {
-        field: 'categories',
-        headerName: 'Genre'
-      }
-    ]
+  const bookColumns = [
+    {
+      field: 'title',
+      headerName: 'Book Title',
+    },
+    {
+      field: 'authors',
+      headerName: 'Author',
+      renderCell: (row) => renderAuthors(row.data.authors),
+    },
+    {
+      field: 'publisher',
+      headerName: 'Publisher'
+    },
+    {
+      field: 'categories',
+      headerName: 'Genre'
+    }
+  ]
 
   return (
     <Container>
       <div style = {fullCenter}>
-        <div imageContainerStyle>
+        <div style = {imageContainerStyle}>
       <img src={'https://images.pexels.com/photos/3952084/pexels-photo-3952084.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'} alt="Background" style={imageStyle} />
       <div style={overlayStyle}></div>
       </div>
@@ -180,16 +153,11 @@ const welcomeMessageStyle = {
                 variant="contained"
                 color="primary"
                 onClick={handleSearchIconClick}>
-                {/* style={{ height: '38px', marginBottom: '18px'}}> */}
                 Search
             </Button>
-          {/* <IconButton aria-label = 'search' onClick = {handleSearchIconClick}>
-            <SearchIcon/>
-          </IconButton> */}
       </Stack>
       <div style = {containerStyle}></div>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {/* <h2 style={{ alignSelf: 'flex-start' }}>Search Results</h2> */}
         {showResults && (data.length === 0 ? (
           <p>No results found.</p>
         ) : (

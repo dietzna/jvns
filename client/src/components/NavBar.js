@@ -38,7 +38,6 @@ export default function NavBar() {
         <Toolbar disableGutters>
           <NavText href='/' text='PAGETURNER' isMain />
           <NavText href='/author' text='AUTHORS' />
-          <NavText href='/books' text='BOOKS' />
           <NavText href='/users' text='USERS' />
           <NavText href='/publisher' text='PUBLISHERS' />
         </Toolbar>

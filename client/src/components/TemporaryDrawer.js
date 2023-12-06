@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
+import { NavLink } from 'react-router-dom';
 
 export default function TemporaryDrawer({ selectedBookTitle, selectedBookAuthor, selectedBookImage }) {
   const theme = useTheme();
@@ -32,9 +33,13 @@ export default function TemporaryDrawer({ selectedBookTitle, selectedBookAuthor,
     >
       <div>
         <h2>Book of the Day</h2>
-        <h4>{selectedBookTitle}</h4>
+        <h4>
+          <NavLink to={`/bookpopup/${selectedBookTitle}`} style={{ color: 'white', textDecoration: 'none' }}>
+            {selectedBookTitle}
+          </NavLink>
+        </h4>
         <p>By: {selectedBookAuthor}</p>
-        <img
+        <img 
           src={selectedBookImage}
           alt="Book of the Day cover image"
           style={{ width: '100%', height: 'auto', marginBottom: '16px' }}
