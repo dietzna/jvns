@@ -48,7 +48,6 @@ export default function NavBar() {
             />
           </Link>
           <NavText href='/author' text='AUTHORS' />
-          <NavText href='/books' text='BOOKS' />
           <NavText href='/users' text='USERS' />
           <NavText href='/publisher' text='PUBLISHERS' />
         </Toolbar>

@@ -7,7 +7,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import {useTheme} from '@mui/system';
+import { useTheme } from '@mui/system';
+import { NavLink } from 'react-router-dom';
 
 export default function CustomTable({ data, keyColumns }) {
   const [page, setPage] = React.useState(0);
@@ -27,7 +28,7 @@ export default function CustomTable({ data, keyColumns }) {
     // Handle the case when data is not an array (e.g., 0 results)
     return (
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <p> Sorry, no results found. </p>
+        <p>Sorry, no results found.</p>
       </Paper>
     );
   }
@@ -44,7 +45,7 @@ export default function CustomTable({ data, keyColumns }) {
                   align={column.align || 'left'}
                   style={{
                     minWidth: column.minWidth,
-                    color: 'white', // Use primary text color from the theme
+                    color: 'white',
                   }}
                   sx={{ backgroundColor: theme.palette.primary.main }}
                 >
@@ -60,7 +61,13 @@ export default function CustomTable({ data, keyColumns }) {
                 <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
                   {keyColumns.map((column) => (
                     <TableCell key={column.field} align={column.align || 'left'}>
-                      {row[column.field]}
+                      {column.field === 'title' ? (
+                        <NavLink to={`/bookpopup/${row.title}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                          {row[column.field]}
+                        </NavLink>
+                      ) : (
+                        row[column.field]
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
