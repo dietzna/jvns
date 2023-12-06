@@ -461,7 +461,7 @@ const author_top = async function(req, res) {
   connection.query(`
     SELECT
       a.author,
-      a.title,
+      a.title as title,
       round(avg(r.score), 2) as average_rating
     FROM books_db.Authors a
     left join books_db.Books b on a.title = b.title
