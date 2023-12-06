@@ -7,7 +7,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-// Assuming columns and data are available in the scope of your component
 export default function CustomTable({ data, columns }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage] = React.useState(10);

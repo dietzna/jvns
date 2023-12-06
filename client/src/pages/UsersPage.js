@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, Container, FormControlLabel, Grid, Link, Slider, TextField } from '@mui/material';
+import { Button, Checkbox, Container, FormControlLabel, Grid, Slider, TextField } from '@mui/material';
 import CustomTable from '../components/CustomTable';
 
 const config = require('../config.json');
 
 export default function UsersPage() {
   const [data, setData] = useState([]);
-  // const [selectedUserId, setSelectedUserId] = useState(null);
 
   const [username, setUsername] = useState('');
   const [reviews, setReviews] = useState([0, 1400]);
@@ -19,7 +18,6 @@ export default function UsersPage() {
     fetch(`http://${config.server_host}:${config.server_port}/users`)
       .then(res => res.json())
       .then(resJson => {
-        //const usersWithId = resJson.map((user) => ({ id: user.userId, ...user }));
         const usersWithId = resJson.map((user) =>
         ({ id: user.userId,
           profileName: user.profileName,
@@ -37,7 +35,6 @@ export default function UsersPage() {
     )
       .then(res => res.json())
       .then(resJson => {
-        //const usersWithId = resJson.map((user) => ({ id: user.userId, ...user }));
         const usersWithId = resJson.map((user) =>
         ({ id: user.userId,
           profileName: user.profileName,
@@ -48,9 +45,7 @@ export default function UsersPage() {
   }
 
   const columns = [
-    { field: 'profileName', headerName: 'Username', flex: 1.5//, renderCell: (params) => (
-        //<Link onClick={() => setSelectedSongId(params.row.song_id)}>{params.value}</Link>
-    //)
+    { field: 'profileName', headerName: 'Username', flex: 1.5
     },
     { field: 'avgHelpfulness', headerName: 'Average Helpfulness', flex: 1},
     { field: 'numReviews', headerName: 'Number of Reviews', flex: 1}
