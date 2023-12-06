@@ -28,17 +28,7 @@ function queryDatabase(sql) {
  * WARM UP ROUTES *
  ******************/
 // Route for users
-/*`WITH avg_ratings AS (
-      SELECT userId, AVG(helpfulness) AS helpfulness, COUNT(*) AS num_reviews
-      FROM Ratings
-      GROUP BY userId
-    )
-    SELECT u.userId, profileName, helpfulness, num_reviews
-    FROM User u JOIN avg_ratings r ON u.userId = r.userId
-    WHERE profileName LIKE '%${username}%'
-    AND (helpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh})
-    AND (num_reviews BETWEEN ${reviewsLow} AND ${reviewsHigh});
-    `*/
+
 const users = async function(req, res) {
   const username = req.query.username ?? "";
 	const reviewsLow = req.query.reviews_low ?? 0;
@@ -48,14 +38,19 @@ const users = async function(req, res) {
   const orderBy = req.query.order_by ?? "numReviews";
 
   connection.query(
-    `SELECT profileName, avgHelpfulness, numReviews
-    FROM User
+    `WITH avg_ratings AS (
+      SELECT userId, AVG(helpfulness) AS avgHelpfulness, COUNT(score) AS numReviews
+      FROM Ratings
+      GROUP BY userId
+    )
+    SELECT profileName, avgHelpfulness, r.numReviews
+    FROM User u JOIN avg_ratings r ON u.userId = r.userId
     WHERE profileName LIKE '%${username}%'
-    AND avgHelpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh}
-    AND numReviews BETWEEN ${reviewsLow} AND ${reviewsHigh}
+    AND (avgHelpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh})
+    AND (numReviews BETWEEN ${reviewsLow} AND ${reviewsHigh})
     ORDER BY ${orderBy} DESC
-    LIMIT 500`,
-		(err, data) => {
+    LIMIT 500;`,
+    (err, data) => {
 			if (err || data.length === 0) {
 				console.log(err);
 				res.json([]);
@@ -63,15 +58,16 @@ const users = async function(req, res) {
 				res.json(data);
 			}
 		}
-	);
+  );
 
-	/*connection.query(
-    `WITH p_user AS (SELECT * FROM User WHERE profileName LIKE '%${username}%')
-    SELECT u.profileName, AVG(helpfulness) AS helpfulness, COUNT(score) AS num_reviews
-    FROM p_user u JOIN Ratings r ON u.userId = r.userId
-    GROUP BY u.userId
-    HAVING AVG(helpfulness)  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh}
-    AND num_reviews BETWEEN ${reviewsLow} AND ${reviewsHigh}`,
+  /*connection.query(
+    `SELECT profileName, avgHelpfulness, numReviews
+    FROM User
+    WHERE profileName LIKE '%${username}%'
+    AND avgHelpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh}
+    AND numReviews BETWEEN ${reviewsLow} AND ${reviewsHigh}
+    ORDER BY ${orderBy} DESC
+    LIMIT 500`,
 		(err, data) => {
 			if (err || data.length === 0) {
 				console.log(err);
