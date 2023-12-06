@@ -97,25 +97,26 @@ export default function HomePage() {
     return authors.join(', ');
   };
 
-  const bookColumns = [
-    {
-      field: 'title',
-      headerName: 'Book Title',
-    },
-    {
-      field: 'authors',
-      headerName: 'Author',
-      renderCell: (row) => renderAuthors(row.data.authors),
-    },
-    {
-      field: 'publisher',
-      headerName: 'Publisher'
-    },
-    {
-      field: 'categories',
-      headerName: 'Genre'
-    }
-  ]
+    const bookColumns = [
+      {
+        field: 'title',
+        headerName: 'Book Title',
+        // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink>
+      },
+      {
+        field: 'authors',
+        headerName: 'Author',
+        renderCell: (row) => renderAuthors(row.data.authors),
+      },
+      {
+        field: 'publisher',
+        headerName: 'Publisher'
+      },
+      {
+        field: 'categories',
+        headerName: 'Genre'
+      }
+    ]
 
   return (
     <Container>

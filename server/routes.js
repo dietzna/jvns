@@ -53,7 +53,8 @@ const users = async function(req, res) {
     WHERE profileName LIKE '%${username}%'
     AND avgHelpfulness  BETWEEN ${helpfulnessLow} AND ${helpfulnessHigh}
     AND numReviews BETWEEN ${reviewsLow} AND ${reviewsHigh}
-    ORDER BY ${orderBy} DESC`,
+    ORDER BY ${orderBy} DESC
+    LIMIT 500`,
 		(err, data) => {
 			if (err || data.length === 0) {
 				console.log(err);
