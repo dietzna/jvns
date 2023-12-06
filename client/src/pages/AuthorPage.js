@@ -35,7 +35,7 @@ function AuthorTable() {
       headerName: 'Author',
     },
     {
-      field: 'num_books',
+      field: 'num_titles',
       headerName: 'Number of Titles'
     }
   ]
@@ -46,7 +46,7 @@ function AuthorTable() {
       headerName: 'Author',
     },
     {
-      field: 'avg_rating',
+      field: 'average_score',
       headerName: 'Average Rating'
     }
   ]
