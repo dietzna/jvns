@@ -101,7 +101,6 @@ export default function HomePage() {
       {
         field: 'title',
         headerName: 'Book Title',
-        // renderCell: (row) => <NavLink to={`/bookpopup/${row.title}`}>{row.title}</NavLink>
       },
       {
         field: 'authors',

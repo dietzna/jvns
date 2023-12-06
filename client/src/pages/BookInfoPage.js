@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { formatDuration, formatReleaseDate } from '../helpers/formatter';
+import { Container, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import {useTheme} from '@mui/system';
 const config = require('../config.json');
 
@@ -9,12 +8,12 @@ const config = require('../config.json');
 export default function BookInfoPage() {
   const { title } = useParams();
   const theme = useTheme();
- const [bookData1, setBookData] = useState({bookDetails: [], ratings: []}); // default should actually just be [], but empty object element added to avoid error in template code
+ const [bookData1, setBookData] = useState({bookDetails: [], ratings: []});
  const [isLoading, setIsLoading] = useState(false);
  const [error, setError] = useState(null);
 
 
-  useEffect(() => {
+useEffect(() => {
 setIsLoading(true);
     fetch(`http://${config.server_host}:${config.server_port}/bookpopup/${title}`)
       .then(res => {
@@ -33,7 +32,6 @@ setIsLoading(true);
         setError(error);
         setIsLoading(false);
       });
-     //console.log(resJson);
   }, [title]);
 
   if (isLoading) {
@@ -102,9 +100,3 @@ setIsLoading(true);
   </div>
   );
 }
-
-//{firstBookDetails && (
-//  <div>
-//    <p>Title: {firstBookDetails.title}</p>
-//  </div>
-//)}

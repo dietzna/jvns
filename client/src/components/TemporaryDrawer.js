@@ -50,9 +50,9 @@ export default function TemporaryDrawer({ selectedBookTitle, selectedBookAuthor,
 
   const buttonStyle = {
     border: `2px solid ${theme.palette.primary.main}`,
-    backgroundColor: '#FFFFFF', // Set your desired lighter color
+    backgroundColor: '#FFFFFF',
     '&:hover': {
-      backgroundColor: '#d3d3d3', // Set your desired darker color on hover
+      backgroundColor: '#d3d3d3',
     },
   };
 
