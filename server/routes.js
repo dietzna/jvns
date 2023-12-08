@@ -232,7 +232,7 @@ const author_top = async function(req, res) {
 
 // Route for bookpopup
 const bookpopup = async function(req, res) {
-    var book_title = req.params.title.replace("'", "''");
+    var book_title = req.params.title.replaceAll("'", "''");
     connection.query(`
     SELECT b.title, group_concat(a.author) as author, b.publisher, b.categories, b.description, b.image, b.infoLink
     FROM Books b, Authors a
